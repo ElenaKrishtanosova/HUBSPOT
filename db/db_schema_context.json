@@ -29,8 +29,8 @@
         "mobile_phone": {"type": "TEXT", "format": "+[countrycode][digits]"},
         "company_domain": {"type": "TEXT", "constraint": "FK → companies.company_domain"},
         "name_embedding": {"type": "VECTOR(768)", "purpose": "fuzzy person lookup"}
-      }
-    },
+        }
+      },
     "deals": {
       "description": "Sales deals and opportunities",
       "columns": {
@@ -52,8 +52,8 @@
         "point_of_contact": {"type": "TEXT"},
         "description": {"type": "TEXT", "purpose": "deal notes or associate emails"},
         "name_embedding": {"type": "VECTOR(768)", "purpose": "semantic search"}
-      }
-    },
+        }
+      },
     "tickets": {
       "description": "Support tickets and issues",
       "columns": {
@@ -63,7 +63,7 @@
         "ticket_status": {
           "type": "TEXT", 
           "constraint": "CHECK (ticket_status IN ('New', 'Open', 'Waiting on contact', 'Waiting on Us', 'Closed'))"
-        },
+      },
         "priority": {
           "type": "TEXT", 
           "constraint": "CHECK (priority IN ('Low', 'Medium', 'High'))"
@@ -99,15 +99,15 @@
         "cost_of_goods_sold": {"type": "NUMERIC(18,2)"},
         "description_embedding": {"type": "VECTOR(768)", "purpose": "semantic search"}
       }
-    },
+        },
     "users": {
       "description": "System users and owners",
       "columns": {
         "user_id": {"type": "BIGSERIAL", "constraint": "PRIMARY KEY"},
         "email": {"type": "TEXT", "constraint": "NOT NULL UNIQUE"},
         "full_name": {"type": "TEXT"}
-      }
-    },
+        }
+      },
     "tasks": {
       "description": "Task management and assignments",
       "columns": {
@@ -172,7 +172,7 @@
         "contact_email": {"type": "TEXT", "constraint": "FK → contacts.contact_email"},
         "body_embedding": {"type": "VECTOR(768)", "purpose": "long-form context search"}
       }
-    },
+        },
     "deal_line_items": {
       "description": "Line items within deals",
       "columns": {
@@ -183,8 +183,8 @@
         "quantity": {"type": "INTEGER", "constraint": "NOT NULL DEFAULT 1"},
         "unit_price": {"type": "NUMERIC(18,2)"}
       }
-    }
-  },
+        }
+      },
   "associations": {
     "company_contact_associations": {
       "description": "Many-to-many company-contact relationships",
@@ -201,16 +201,16 @@
         "deal_id": {"type": "TEXT", "constraint": "FK → deals.deal_id ON DELETE CASCADE"},
         "company_domain": {"type": "TEXT", "constraint": "FK → companies.company_domain ON DELETE CASCADE"},
         "label": {"type": "TEXT", "default": "''"}
-      },
+        },
       "primary_key": ["deal_id", "company_domain", "label"]
-    },
+        },
     "contact_contact_associations": {
       "description": "Many-to-many contact-contact relationships",
       "columns": {
         "contact_email": {"type": "TEXT", "constraint": "FK → contacts.contact_email ON DELETE CASCADE"},
         "associated_contact_email": {"type": "TEXT", "constraint": "FK → contacts.contact_email ON DELETE CASCADE"},
         "label": {"type": "TEXT", "default": "''"}
-      },
+    },
       "primary_key": ["contact_email", "associated_contact_email", "label"]
     },
     "company_company_associations": {
@@ -256,7 +256,7 @@
       "deals.close_date": "DATE → TEXT (dd/mm/yyyy hh:mm format)",
       "tickets.activity_date": "New TEXT field (dd/mm/yyyy hh:mm format)"
     }
-  },
+    },
   "constraints": {
     "enumerated_values": {
       "industry": ["Retail", "Hospitality", "E-commerce", "Wholesale", "Manufacturing", "Distribution"],

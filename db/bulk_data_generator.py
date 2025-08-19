@@ -50,16 +50,18 @@ BUSINESS_CYCLE_MULTIPLIERS = {
     7: 0.9, 8: 1.2, 9: 1.3, 10: 1.5, 11: 1.8, 12: 2.5
 }
 
-PRODUCT_NAMES = ["Sunrise Toaster", "Sunset Toaster", "Retro Toaster", "Duo Toaster", "Cosmo Toaster"]
-COMPANY_TYPES = ["Wholesaler", "Supplier", "Retail Chain", "Specialty Store", "Distributor"]
-DEAL_STAGES = ["New", "In Progress", "Closed Won", "Closed Lost"]
-TICKET_STATUSES = ["New", "In Progress", "Waiting on Customer", "Closed"]
+PRODUCT_NAMES = ["2-slice toaster", "4-slice toaster", "smart toaster", "crumb tray kit", "display stand"]
+INDUSTRIES = ["Retail", "Hospitality", "E-commerce", "Wholesale", "Manufacturing", "Distribution"]
+DEAL_STAGES = ["Appointment Scheduled", "Qualified to Buy", "Presentation Scheduled", "Closed Won", "Closed Lost"]
+TICKET_STATUSES = ["New", "Open", "Waiting on contact", "Waiting on Us", "Closed"]
 PRIORITIES = ["Low", "Medium", "High"]
 TASK_STATUSES = ["Not Started", "In Progress", "Completed", "Deferred"]
-CALL_DIRECTIONS = ["INBOUND", "OUTBOUND"]
-CALL_STATUSES = ["COMPLETED", "MISSED", "SCHEDULED"]
-EMAIL_DIRECTIONS = ["INBOUND", "OUTBOUND"]
-EMAIL_STATUSES = ["SENT", "DELIVERED", "READ", "FAILED"]
+CALL_DIRECTIONS = ["Inbound", "Outbound"]
+CALL_STATUSES = ["Completed", "Busy", "Missed", "Scheduled"]
+EMAIL_DIRECTIONS = ["Incoming", "Outgoing"]
+EMAIL_STATUSES = ["Sent", "Delivered", "Read", "Failed"]
+TICKET_SOURCES = ["Email", "Phone", "Web form"]
+ISSUES_OF_INTEREST = ["Crumb tray", "Overheating", "Wi‑Fi setup", "Shipping delay", "Thermostat", "Packaging", "Noise", "Invoice"]
 
 TOTAL_CONTACTS = 100
 TOTAL_COMPANIES = 6
@@ -103,8 +105,8 @@ def generate_and_load_data():
 
     # Lists to store generated IDs for creating relationships
     all_user_ids = []
-    all_company_ids = []
-    all_contact_ids = []
+    all_company_domains = []
+    all_contact_emails = []
     all_product_ids = []
     all_deal_ids = []
     all_ticket_ids = []
@@ -148,27 +150,47 @@ def generate_and_load_data():
     for _ in range(TOTAL_COMPANIES):
         company_id = company_id_counter
         company_id_counter += 1
+        
+        # Generate unique domain
+        while True:
+            company_domain = fake.domain_name()
+            if company_domain not in all_company_domains:
+                break
+        
+        all_company_domains.append(company_domain)
+        
         cur.execute(
-            """INSERT INTO companies (company_id, name, domain, phone_number, city) VALUES (%s, %s, %s, %s, %s);""",
-            (company_id, fake.company(), fake.domain_name(), fake.phone_number(), fake.city())
+            """INSERT INTO companies (company_id, name, company_domain, phone, city, industry, number_of_employees) VALUES (%s, %s, %s, %s, %s, %s, %s);""",
+            (company_id, fake.company(), company_domain, 
+             f"+1{random.randint(1000000000, 9999999999)}", fake.city(),
+             random.choice(INDUSTRIES), random.randint(10, 1000))
         )
-        all_company_ids.append(company_id)
 
     # Generate contacts once (not per month)
     for _ in range(TOTAL_CONTACTS):
         contact_id = contact_id_counter
         contact_id_counter += 1
+        
+        # Generate unique email
+        while True:
+            contact_email = fake.email()
+            if contact_email not in all_contact_emails:
+                break
+        
+        all_contact_emails.append(contact_email)
+        company_domain = random.choice(all_company_domains) if all_company_domains else None
+        
         cur.execute(
-            """INSERT INTO contacts (contact_id, external_id, first_name, last_name, email, phone) VALUES (%s, %s, %s, %s, %s, %s);""",
-            (contact_id, random.randint(100000, 999999), fake.first_name(), fake.last_name(), fake.email(), fake.phone_number())
+            """INSERT INTO contacts (contact_id, first_name, last_name, contact_email, mobile_phone, company_domain) VALUES (%s, %s, %s, %s, %s, %s);""",
+            (contact_id, fake.first_name(), fake.last_name(), contact_email, 
+             f"+1{random.randint(1000000000, 9999999999)}", company_domain)
         )
-        all_contact_ids.append(contact_id)
         
         # Link contacts to companies
-        if all_company_ids:
+        if company_domain:
             cur.execute(
-                """INSERT INTO company_contact_associations (company_id, contact_id, label) VALUES (%s, %s, %s);""",
-                (random.choice(all_company_ids), contact_id, random.choice(["Employee", "Decision Maker", "Contact"]))
+                """INSERT INTO company_contact_associations (company_domain, contact_email, label) VALUES (%s, %s, %s);""",
+                (company_domain, contact_email, random.choice(["Employee", "Decision Maker", "Contact"]))
             )
 
     # PHASE 3: Create deals and tickets
@@ -186,23 +208,27 @@ def generate_and_load_data():
         # Generate deals
         num_deals = int((TOTAL_DEALS / 12) * multiplier)
         for _ in range(num_deals):
-            deal_id = deal_id_counter
+            deal_id = f"DEAL{deal_id_counter:06d}"
             deal_id_counter += 1
             deal_name = generate_llm_content("Create a neutral deal name for a toaster company. The deal name should reflect a routine sale.")
+            contact_email = random.choice(all_contact_emails) if all_contact_emails else None
+            company_domain = random.choice(all_company_domains) if all_company_domains else None
+            close_date = fake.date_between(start_date=month_start_date, end_date=month_start_date + timedelta(days=days_in_month-1))
+            close_date_str = close_date.strftime("%d/%m/%Y %H:%M")
             
             cur.execute(
-                """INSERT INTO deals (deal_id, external_id, name, pipeline, stage, amount, close_date, product_of_interest, point_of_contact_name) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);""",
-                (deal_id, random.randint(100000, 999999), deal_name, "Default Pipeline", random.choice(DEAL_STAGES), 
-                 round(random.uniform(50, 5000), 2), fake.date_between(start_date=month_start_date, end_date=month_start_date + timedelta(days=days_in_month-1)),
-                 random.choice(PRODUCT_NAMES), fake.name())
+                """INSERT INTO deals (deal_id, deal_name, deal_stage, pipeline, amount, close_date, contact_email, company_domain, product_of_interest, point_of_contact, description) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);""",
+                (deal_id, deal_name, random.choice(DEAL_STAGES), "Sales Pipeline", 
+                 round(random.uniform(50, 5000), 2), close_date_str, contact_email, company_domain,
+                 random.choice(PRODUCT_NAMES), fake.name(), generate_llm_content("Write a brief description of this deal."))
             )
             all_deal_ids.append(deal_id)
             
-            # Link deals to companies and products
-            if all_company_ids and all_product_ids:
+            # Link deals to companies
+            if company_domain:
                 cur.execute(
-                    """INSERT INTO deal_company_associations (deal_id, company_id, label) VALUES (%s, %s, %s);""",
-                    (deal_id, random.choice(all_company_ids), random.choice(["Primary", "Secondary", "Billing"]))
+                    """INSERT INTO deal_company_associations (deal_id, company_domain, label) VALUES (%s, %s, %s);""",
+                    (deal_id, company_domain, random.choice(["Primary", "Secondary", "Billing"]))
                 )
                 
                 # Create line items for deals
@@ -217,17 +243,19 @@ def generate_and_load_data():
         # Generate tickets
         num_tickets = int((TOTAL_TICKETS / 12) * multiplier)
         for _ in range(num_tickets):
-            ticket_id = ticket_id_counter
+            ticket_id = f"TICKET{ticket_id_counter:06d}"
             ticket_id_counter += 1
             ticket_name = generate_llm_content(PROMPTS['note'])
-            owner_user_id = random.choice(all_user_ids)
+            contact_email = random.choice(all_contact_emails) if all_contact_emails else None
+            company_domain = random.choice(all_company_domains) if all_company_domains else None
+            activity_date = fake.date_between(start_date=month_start_date, end_date=month_start_date + timedelta(days=days_in_month-1))
+            activity_date_str = activity_date.strftime("%d/%m/%Y %H:%M")
             
             cur.execute(
-                """INSERT INTO tickets (ticket_id, name, pipeline, status, priority, owner_user_id, source, issue_of_interest, issued_ticket_before) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);""",
+                """INSERT INTO tickets (ticket_id, ticket_name, pipeline, ticket_status, priority, source, ticket_owner, activity_date, contact_email, company_domain, issue_of_interest, issued_before, description) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);""",
                 (ticket_id, ticket_name, "Support Pipeline", random.choice(TICKET_STATUSES), random.choice(PRIORITIES), 
-                 owner_user_id, random.choice(["Email", "Phone", "Web", "Chat"]), 
-                 random.choice(["Product Issue", "Billing Question", "Delivery Problem", "General Inquiry"]),
-                 random.choice([True, False]))
+                 random.choice(TICKET_SOURCES), fake.email(), activity_date_str, contact_email, company_domain,
+                 random.choice(ISSUES_OF_INTEREST), random.choice(["Yes", "No"]), generate_llm_content("Write a brief description of this ticket issue."))
             )
             all_ticket_ids.append(ticket_id)
 
@@ -276,7 +304,7 @@ def generate_and_load_data():
                  random.choice(CALL_STATUSES), fake.sentence(nb_words=4),
                  fake.date_time_between(month_start_date, month_start_date + timedelta(days=days_in_month-1)), 
                  assigned_user, random.randint(60000, 900000), 
-                 random.choice(["Successful", "Left Message", "No Answer", "Busy"]),
+                 random.choice(["Connected", "Left voicemail", "No Answer", "Busy"]),
                  random.choice(["Phone", "Mobile", "Office"]), fake.phone_number(), fake.phone_number(),
                  fake.url() if random.choice([True, False]) else None, random.choice([True, False]),
                  random.choice(["Sales Call", "Support Call", "Follow-up", "General"]))
@@ -284,13 +312,13 @@ def generate_and_load_data():
             all_call_ids.append(call_id)
             
             # Link calls to contacts
-            if all_contact_ids:
+            if all_contact_emails:
                 num_call_contacts = random.randint(1, 2)
-                selected_contacts = random.sample(all_contact_ids, min(num_call_contacts, len(all_contact_ids)))
-                for contact_id in selected_contacts:
+                selected_contacts = random.sample(all_contact_emails, min(num_call_contacts, len(all_contact_emails)))
+                for contact_email in selected_contacts:
                     cur.execute(
-                        """INSERT INTO call_contacts (call_id, contact_id) VALUES (%s, %s);""",
-                        (call_id, contact_id)
+                        """INSERT INTO call_contacts (call_id, contact_email) VALUES (%s, %s);""",
+                        (call_id, contact_email)
                     )
 
         # Generate emails
@@ -298,11 +326,11 @@ def generate_and_load_data():
         for _ in range(num_emails):
             email_id = email_id_counter
             email_id_counter += 1
-            contact_id = random.choice(all_contact_ids) if all_contact_ids else None
+            contact_email = random.choice(all_contact_emails) if all_contact_emails else None
             
             cur.execute(
-                """INSERT INTO emails (email_id, contact_id, subject, send_status, body, direction) VALUES (%s, %s, %s, %s, %s, %s);""",
-                (email_id, contact_id, fake.sentence(nb_words=6), random.choice(EMAIL_STATUSES), 
+                """INSERT INTO emails (email_id, contact_email, subject, send_status, body, direction) VALUES (%s, %s, %s, %s, %s, %s);""",
+                (email_id, contact_email, fake.sentence(nb_words=6), random.choice(EMAIL_STATUSES), 
                  generate_llm_content(PROMPTS['email']), random.choice(EMAIL_DIRECTIONS))
             )
             all_email_ids.append(email_id)
@@ -313,36 +341,36 @@ def generate_and_load_data():
             note_id = note_id_counter
             note_id_counter += 1
             user_id = random.choice(all_user_ids)
-            contact_id = random.choice(all_contact_ids) if all_contact_ids else None
-            company_id = random.choice(all_company_ids) if all_company_ids else None
+            contact_email = random.choice(all_contact_emails) if all_contact_emails else None
+            company_domain = random.choice(all_company_domains) if all_company_domains else None
             deal_id = random.choice(all_deal_ids) if all_deal_ids else None
             ticket_id = random.choice(all_ticket_ids) if all_ticket_ids else None
 
             cur.execute(
-                """INSERT INTO notes (note_id, body, activity_date, activity_assigned_to_user_id, company_id, ticket_id, deal_id, contact_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);""",
+                """INSERT INTO notes (note_id, body, activity_date, activity_assigned_to_user_id, company_domain, ticket_id, deal_id, contact_email) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);""",
                 (note_id, generate_llm_content(PROMPTS['note']), 
                  fake.date_between(start_date=month_start_date, end_date=month_start_date + timedelta(days=days_in_month-1)),
-                 user_id, company_id, ticket_id, deal_id, contact_id)
+                 user_id, company_domain, ticket_id, deal_id, contact_email)
             )
             all_note_ids.append(note_id)
 
         # Create some contact-to-contact associations
-        if all_contact_ids and random.random() < 0.3:  # 30% chance per month
-            contact1 = random.choice(all_contact_ids)
-            contact2 = random.choice(all_contact_ids)
+        if all_contact_emails and random.random() < 0.3:  # 30% chance per month
+            contact1 = random.choice(all_contact_emails)
+            contact2 = random.choice(all_contact_emails)
             if contact1 != contact2:
                 cur.execute(
-                    """INSERT INTO contact_contact_associations (contact_id, associated_contact_id, label) VALUES (%s, %s, %s);""",
+                    """INSERT INTO contact_contact_associations (contact_email, associated_contact_email, label) VALUES (%s, %s, %s);""",
                     (contact1, contact2, random.choice(["Colleague", "Manager", "Subordinate", "Partner"]))
                 )
 
         # Create some company-to-company associations
-        if all_company_ids and random.random() < 0.2:  # 20% chance per month
-            company1 = random.choice(all_company_ids)
-            company2 = random.choice(all_company_ids)
+        if all_company_domains and random.random() < 0.2:  # 20% chance per month
+            company1 = random.choice(all_company_domains)
+            company2 = random.choice(all_company_domains)
             if company1 != company2:
                 cur.execute(
-                    """INSERT INTO company_company_associations (company_id, associated_company_id, label) VALUES (%s, %s, %s);""",
+                    """INSERT INTO company_company_associations (company_domain, associated_company_domain, label) VALUES (%s, %s, %s);""",
                     (company1, company2, random.choice(["Parent", "Subsidiary", "Partner", "Competitor"]))
                 )
 
