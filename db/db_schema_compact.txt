@@ -1,0 +1,98 @@
+HubSpot CRM Database Schema:
+
+users:
+  email text
+  full_name text
+  PK: user_id
+
+companies:
+  name text
+  domain text
+  phone_number text
+  city text
+  PK: company_id
+
+contacts:
+  external_id bigint
+  first_name text
+  last_name text
+  email text
+  phone text
+  PK: contact_id
+
+products:
+  external_id bigint
+  name text
+  description text
+  price numeric
+  cost_of_goods_sold numeric
+  PK: product_id
+
+deals:
+  external_id bigint
+  name text
+  pipeline text
+  stage text
+  amount numeric
+  ... and 3 more columns
+  PK: deal_id
+
+tickets:
+  name text
+  pipeline text
+  status text
+  priority text
+  owner_user_id bigint
+  ... and 3 more columns
+  PK: ticket_id
+  FK: owner_user_id -> users
+
+tasks:
+  due_at timestamp with time zone
+  title text
+  notes text
+  priority text
+  status text
+  ... and 3 more columns
+  PK: task_id
+  FK: assigned_to_user_id -> users, deal_id -> deals
+
+calls:
+  notes text
+  direction text
+  status text
+  title text
+  activity_at timestamp with time zone
+  ... and 9 more columns
+  PK: call_id
+  FK: assigned_to_user_id -> users
+
+emails:
+  subject text
+  send_status text
+  body text
+  direction text
+  PK: email_id
+  FK: contact_id -> contacts
+
+notes:
+  body text
+  activity_date date
+  activity_assigned_to_user_id bigint
+  PK: note_id
+  FK: activity_assigned_to_user_id -> users, company_id -> companies, ticket_id -> tickets, deal_id -> deals, contact_id -> contacts
+
+Association Tables:
+  company_contact_associations: company_id -> companies, contact_id -> contacts
+  deal_company_associations: deal_id -> deals, company_id -> companies
+  contact_contact_associations: contact_id -> contacts, associated_contact_id -> contacts
+  company_company_associations: company_id -> companies, associated_company_id -> companies
+  call_contacts: call_id -> calls, contact_id -> contacts
+  deal_line_items: deal_id -> deals, product_id -> products
+
+Key Relationships:
+  users -> tickets, tasks, calls, notes
+  companies -> contacts, deals, notes
+  contacts -> emails, notes
+  deals -> tasks, notes, line_items
+  products -> line_items

@@ -1,0 +1,135 @@
+task_id,due_at,title,notes,priority,status,task_type,queue,assigned_to_user_id,deal_id,title_embedding,notes_embedding
+1,2024-09-01 11:01:17.265764+02:00,"Task: Follow up on order #12345
+
+Please check on the status of order #12345 as there has been a slight delay in processing. Ensure that the customer is notified of the updated timeline for delivery and offer any necessary assistance to address any concerns they may have.
+
+Thank you for your attention to this matter. Let's strive to provide excellent customer service and ensure the satisfaction of our customers.","Task: Follow up with customer regarding delayed order
+
+Details: Customer placed an order on 5/15 and has not received it yet. Contact customer to apologize for the delay and provide an update on the status of their order. Offer discount or compensation for inconvenience.
+
+Deadline: 5/25
+
+---
+
+Task: Send thank you email to client
+
+Details: Client recently made a purchase and provided positive feedback about our product. Send a personalized thank you email expressing gratitude for their business and loyalty. Include any special promotions or discounts for future purchases.
+
+Deadline: 5/20
+
+---
+
+Task: Clarify product information for marketing team
+
+Details: Marketing team is currently working on a new campaign and has requested more detailed information about our latest product line.",High,Completed,Research,Support,3,40,,
+2,2024-09-25 02:32:19.960596+02:00,"Internal Task Note
+
+Date: 10/15/2021
+
+Task: Send a 'thank you' email to all clients who attended our recent webinar on digital marketing strategies.
+
+Details: Please draft a personalized 'thank you' email for all clients who participated in our webinar last Friday. Express gratitude for their attendance and engagement during the session. Include a brief summary of key points discussed and any additional resources they may find helpful. Ensure the email is sent out by the end of the day.
+
+Task Owner: Marketing Team
+
+Deadline: 10/15/2021","Task Note:
+- Send a 'thank you' email to the client for their recent purchase.
+- Follow up with the warehouse to check on the status of the delayed order.
+- Contact the supplier to clarify the technical specifications of the new product.
+- Review the marketing materials for accuracy before the upcoming product launch.
+- Schedule a meeting with the team to discuss potential improvements to the customer service process.
+- Update the inventory system with the latest stock levels.
+- Send out a reminder to all employees about the upcoming company event.
+- Research new vendors for potential partnership opportunities.
+- Organize a training session for staff on the new software system.
+- Update the customer database with the latest contact information.",High,Not Started,Call,Sales,3,53,,
+3,2024-10-25 18:01:32.124997+02:00,"Internal Task Note:
+
+1. Send a thank you email to the client for their recent purchase and positive feedback.
+
+2. Check on the status of order #12345 as there has been a slight delay in shipping.
+
+3. Clarify product information with the marketing team before updating the website.
+
+4. Follow up with the IT department regarding the software update for better efficiency.
+
+5. Reach out to the customer service team for feedback on customer satisfaction and suggestions for improvement.","Task: Follow up with customer regarding delayed order
+
+Details:
+- Customer placed order on 05/15/2021
+- Expected delivery date was 05/20/2021
+- Customer reached out on 05/25/2021 to inquire about the status of the order
+- Check with shipping department for updates on the shipment
+- Contact customer via email or phone to provide an update on the delay and offer any necessary assistance
+- Apologize for the inconvenience and express gratitude for their patience",Medium,Deferred,Call,Sales,3,3,,
+4,2024-11-23 03:40:36.774870+01:00,"Task: Send a thank you email to the client for their recent purchase and offer a discount code for their next order. 
+
+Task: Follow up with the supplier to check on the order that is slightly delayed and provide the customer with an updated delivery date.
+
+Task: Review the product information on our website and make any necessary clarifications or updates to ensure accuracy for customers.","Internal Task Note:
+
+1. Send a 'thank you' email to all clients who attended the recent webinar.
+
+2. Follow up with the supplier to check on the status of the delayed order and provide an update to the customer.
+
+3. Clarify product information on the website by adding more detailed descriptions and specifications.
+
+4. Coordinate with the marketing team to schedule social media posts for the upcoming product launch.
+
+5. Review and update the customer database to ensure all contact information is accurate and up to date.",Low,Completed,Follow-up,Sales,2,54,,
+5,2025-01-09 19:40:10.644146+01:00,"Internal Task Note:
+
+1. Send a 'thank you' email to all team members for their hard work on the recent project.
+
+2. Follow up with the supplier to check on the status of the order that was delayed.
+
+3. Update the product information on the website to clarify the different color options available.
+
+4. Schedule a meeting with the marketing team to discuss the upcoming product launch campaign.
+
+5. Review the sales report from last month and identify any areas for improvement.
+
+6. Reach out to the IT department to troubleshoot the issue with the software program.
+
+7. Coordinate with the HR department to organize a team building event for the staff.
+
+8. Research potential new vendors for office supplies to compare prices and quality.
+
+9. Prepare a presentation","Internal Task Note:
+
+1. Send a 'thank you' email to all clients who attended yesterday's webinar.
+2. Follow up with the supplier to check on the status of the delayed order for the upcoming product launch.
+3. Review product information on the new website to ensure accuracy and clarity for customers.
+4. Schedule a meeting with the marketing team to discuss the upcoming promotional campaign.
+5. Update the inventory list with the latest shipment information.
+6. Reach out to the IT department to troubleshoot the issue with the new software update.
+7. Coordinate with the sales team to finalize the pricing strategy for the new product line.
+8. Send out reminders to all employees about the upcoming company-wide meeting.
+9. Conduct a performance review with the team",Low,Completed,Email,General,1,13,,
+6,2025-01-06 11:57:29.840872+01:00,"Task Note: Internal Communication
+
+1. Follow up with customer to express gratitude for recent purchase and gather feedback on shopping experience.
+
+2. Check on order #12345 for any delays and communicate updated delivery timeline to customer.
+
+3. Clarify product specifications with supplier to ensure accurate information is provided to customers.
+
+4. Coordinate with marketing team to create promotional materials for upcoming product launch.
+
+5. Schedule a team meeting to discuss upcoming projects and allocate tasks accordingly.
+
+6. Conduct inventory check to ensure stock levels are sufficient for upcoming sales event.
+
+7. Reach out to IT department to address software issue affecting productivity.
+
+8. Review and update employee training materials to ensure all staff are properly trained on new procedures.
+
+9. Coordinate with HR department to organize employee appreciation","Task: Send a ""thank you"" email to all team members for their hard work on the recent project.
+
+Task: Follow up with the supplier to check on the status of the order that is slightly delayed.
+
+Task: Clarify product information with the marketing team before updating the website.
+
+Task: Schedule a meeting with the sales team to discuss new strategies for increasing revenue.
+
+Task: Send out a reminder to all employees about the upcoming team-building event next week.",Low,Completed,Follow-up,Sales,2,42,,

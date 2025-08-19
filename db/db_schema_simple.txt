@@ -1,0 +1,34 @@
+Database Schema Summary:
+
+users: user_id, email, full_name
+companies: company_id, name, domain, phone_number, city
+  +1 more columns
+contacts: contact_id, external_id, first_name, last_name, email
+  +2 more columns
+products: product_id, external_id, name, description, price
+  +2 more columns
+deals: deal_id, external_id, name, pipeline, stage
+  +5 more columns
+tickets: ticket_id, name, pipeline, status, priority
+  +6 more columns
+tasks: task_id, due_at, title, notes, priority
+  +7 more columns
+calls: call_id, notes, direction, status, title
+  +11 more columns
+emails: email_id, contact_id, subject, send_status, body
+  +3 more columns
+notes: note_id, body, activity_date, activity_assigned_to_user_id, company_id
+  +4 more columns
+
+Key Relationships:
+  call_contacts -> call_contacts.call_id, call_contacts.contact_id
+  calls -> calls.assigned_to_user_id
+  company_company_associations -> company_company_associations.company_id, company_company_associations.associated_company_id
+  company_contact_associations -> company_contact_associations.company_id, company_contact_associations.contact_id
+  contact_contact_associations -> contact_contact_associations.contact_id, contact_contact_associations.associated_contact_id
+  deal_company_associations -> deal_company_associations.deal_id, deal_company_associations.company_id
+  deal_line_items -> deal_line_items.deal_id, deal_line_items.product_id
+  emails -> emails.contact_id
+  notes -> notes.activity_assigned_to_user_id, notes.company_id, notes.ticket_id, notes.deal_id, notes.contact_id
+  tasks -> tasks.assigned_to_user_id, tasks.deal_id
+  tickets -> tickets.owner_user_id

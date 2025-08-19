@@ -1,0 +1,101 @@
+company_id,contact_id,label
+2,1,Decision Maker
+2,2,Contact
+6,3,Contact
+2,4,Decision Maker
+6,5,Employee
+1,6,Decision Maker
+5,7,Employee
+6,8,Contact
+5,9,Contact
+3,10,Employee
+4,11,Contact
+6,12,Employee
+3,13,Contact
+5,14,Contact
+4,15,Employee
+2,16,Decision Maker
+6,17,Decision Maker
+2,18,Contact
+2,19,Contact
+3,20,Decision Maker
+3,21,Decision Maker
+3,22,Contact
+4,23,Decision Maker
+1,24,Employee
+4,25,Contact
+4,26,Decision Maker
+5,27,Employee
+3,28,Contact
+6,29,Employee
+2,30,Decision Maker
+1,31,Decision Maker
+5,32,Decision Maker
+4,33,Contact
+3,34,Decision Maker
+5,35,Contact
+3,36,Employee
+4,37,Contact
+2,38,Decision Maker
+3,39,Contact
+5,40,Employee
+1,41,Employee
+3,42,Contact
+4,43,Decision Maker
+4,44,Contact
+5,45,Decision Maker
+4,46,Decision Maker
+4,47,Decision Maker
+4,48,Contact
+2,49,Decision Maker
+3,50,Contact
+2,51,Employee
+2,52,Contact
+4,53,Employee
+4,54,Decision Maker
+3,55,Contact
+4,56,Contact
+4,57,Decision Maker
+2,58,Contact
+4,59,Decision Maker
+6,60,Decision Maker
+3,61,Employee
+2,62,Decision Maker
+4,63,Contact
+5,64,Decision Maker
+5,65,Employee
+3,66,Decision Maker
+4,67,Employee
+5,68,Contact
+1,69,Decision Maker
+1,70,Contact
+4,71,Employee
+1,72,Employee
+6,73,Employee
+4,74,Decision Maker
+1,75,Employee
+3,76,Decision Maker
+2,77,Employee
+6,78,Contact
+1,79,Decision Maker
+3,80,Decision Maker
+2,81,Employee
+1,82,Contact
+6,83,Decision Maker
+6,84,Contact
+4,85,Contact
+5,86,Employee
+6,87,Contact
+3,88,Decision Maker
+5,89,Decision Maker
+5,90,Decision Maker
+5,91,Decision Maker
+5,92,Contact
+5,93,Contact
+3,94,Employee
+1,95,Employee
+6,96,Employee
+3,97,Decision Maker
+6,98,Decision Maker
+6,99,Employee
+3,100,Contact

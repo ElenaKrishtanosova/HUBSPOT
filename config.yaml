@@ -1,0 +1,17 @@
+database:
+  host: localhost
+  port: 5432
+  user: postgres
+  password: postgres
+  name: hubspot_crm
+
+# Vector search settings
+vector:
+  dimension: 768
+  index_lists: 100
+  similarity_metric: cosine  # cosine, l2, or dot_product
+
+# Logging settings
+logging:
+  level: INFO
+  format: "%(asctime)s - %(levelname)s - %(message)s" 

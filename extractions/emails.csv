@@ -1,0 +1,12 @@
+email_id,contact_id,subject,send_status,body,direction,subject_embedding,body_embedding
+1,85,Want maintain test risk discuss guy.,FAILED,"Subject: Re: Order Inquiry
+
+Dear [Customer],
+
+I hope this email finds you well. Thank you for reaching out to us regarding your recent order. I appreciate your attention to detail and dedication to ensuring everything runs smoothly.
+
+I wanted to address your inquiry about the estimated delivery date. Our team is working diligently to process and ship your order as quickly as possible. Rest assured, we are doing everything we can to expedite the process and get your items to you in a timely manner.
+
+Please feel free to reach out if you have any further questions or concerns. Your satisfaction is our top priority, and we are committed to providing you with the best possible service.
+
+Thank you for choosing us as your trusted partner. We value your business and look forward",OUTBOUND,,

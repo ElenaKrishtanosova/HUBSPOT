@@ -1,0 +1,914 @@
+{
+  "database_name": "hubspot_crm",
+  "tables": {
+    "call_contacts": {
+      "columns": {
+        "call_id": {
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        "contact_id": {
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        }
+      },
+      "primary_keys": [
+        "call_id",
+        "contact_id"
+      ],
+      "foreign_keys": {
+        "call_id": {
+          "references_table": "calls",
+          "references_column": "call_id"
+        },
+        "contact_id": {
+          "references_table": "contacts",
+          "references_column": "contact_id"
+        }
+      }
+    },
+    "calls": {
+      "columns": {
+        "call_id": {
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        "notes": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "direction": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "status": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "title": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "activity_at": {
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null
+        },
+        "assigned_to_user_id": {
+          "type": "bigint",
+          "nullable": true,
+          "default": null
+        },
+        "duration_ms": {
+          "type": "bigint",
+          "nullable": true,
+          "default": null
+        },
+        "outcome": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "source": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "from_number": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "to_number": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "recording_url": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "transcript_available": {
+          "type": "boolean",
+          "nullable": true,
+          "default": null
+        },
+        "call_meeting_type": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "notes_embedding": {
+          "type": "USER-DEFINED",
+          "nullable": true,
+          "default": null
+        }
+      },
+      "primary_keys": [
+        "call_id"
+      ],
+      "foreign_keys": {
+        "assigned_to_user_id": {
+          "references_table": "users",
+          "references_column": "user_id"
+        }
+      }
+    },
+    "companies": {
+      "columns": {
+        "company_id": {
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        "name": {
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        "domain": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "phone_number": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "city": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "name_embedding": {
+          "type": "USER-DEFINED",
+          "nullable": true,
+          "default": null
+        }
+      },
+      "primary_keys": [
+        "company_id"
+      ],
+      "foreign_keys": {}
+    },
+    "company_company_associations": {
+      "columns": {
+        "company_id": {
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        "associated_company_id": {
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        "label": {
+          "type": "text",
+          "nullable": false,
+          "default": "''::text"
+        }
+      },
+      "primary_keys": [
+        "company_id",
+        "associated_company_id",
+        "label"
+      ],
+      "foreign_keys": {
+        "company_id": {
+          "references_table": "companies",
+          "references_column": "company_id"
+        },
+        "associated_company_id": {
+          "references_table": "companies",
+          "references_column": "company_id"
+        }
+      }
+    },
+    "company_contact_associations": {
+      "columns": {
+        "company_id": {
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        "contact_id": {
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        "label": {
+          "type": "text",
+          "nullable": false,
+          "default": "''::text"
+        }
+      },
+      "primary_keys": [
+        "company_id",
+        "contact_id",
+        "label"
+      ],
+      "foreign_keys": {
+        "company_id": {
+          "references_table": "companies",
+          "references_column": "company_id"
+        },
+        "contact_id": {
+          "references_table": "contacts",
+          "references_column": "contact_id"
+        }
+      }
+    },
+    "contact_contact_associations": {
+      "columns": {
+        "contact_id": {
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        "associated_contact_id": {
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        "label": {
+          "type": "text",
+          "nullable": false,
+          "default": "''::text"
+        }
+      },
+      "primary_keys": [
+        "contact_id",
+        "associated_contact_id",
+        "label"
+      ],
+      "foreign_keys": {
+        "contact_id": {
+          "references_table": "contacts",
+          "references_column": "contact_id"
+        },
+        "associated_contact_id": {
+          "references_table": "contacts",
+          "references_column": "contact_id"
+        }
+      }
+    },
+    "contacts": {
+      "columns": {
+        "contact_id": {
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        "external_id": {
+          "type": "bigint",
+          "nullable": true,
+          "default": null
+        },
+        "first_name": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "last_name": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "email": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "phone": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "name_embedding": {
+          "type": "USER-DEFINED",
+          "nullable": true,
+          "default": null
+        }
+      },
+      "primary_keys": [
+        "contact_id"
+      ],
+      "foreign_keys": {}
+    },
+    "deal_company_associations": {
+      "columns": {
+        "deal_id": {
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        "company_id": {
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        "label": {
+          "type": "text",
+          "nullable": false,
+          "default": "''::text"
+        }
+      },
+      "primary_keys": [
+        "deal_id",
+        "company_id",
+        "label"
+      ],
+      "foreign_keys": {
+        "deal_id": {
+          "references_table": "deals",
+          "references_column": "deal_id"
+        },
+        "company_id": {
+          "references_table": "companies",
+          "references_column": "company_id"
+        }
+      }
+    },
+    "deal_line_items": {
+      "columns": {
+        "line_item_id": {
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        "deal_id": {
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        "product_id": {
+          "type": "bigint",
+          "nullable": true,
+          "default": null
+        },
+        "name": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "quantity": {
+          "type": "integer",
+          "nullable": false,
+          "default": "1"
+        },
+        "unit_price": {
+          "type": "numeric",
+          "nullable": true,
+          "default": null
+        }
+      },
+      "primary_keys": [
+        "line_item_id"
+      ],
+      "foreign_keys": {
+        "deal_id": {
+          "references_table": "deals",
+          "references_column": "deal_id"
+        },
+        "product_id": {
+          "references_table": "products",
+          "references_column": "product_id"
+        }
+      }
+    },
+    "deals": {
+      "columns": {
+        "deal_id": {
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        "external_id": {
+          "type": "bigint",
+          "nullable": true,
+          "default": null
+        },
+        "name": {
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        "pipeline": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "stage": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "amount": {
+          "type": "numeric",
+          "nullable": true,
+          "default": null
+        },
+        "close_date": {
+          "type": "date",
+          "nullable": true,
+          "default": null
+        },
+        "product_of_interest": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "point_of_contact_name": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "name_embedding": {
+          "type": "USER-DEFINED",
+          "nullable": true,
+          "default": null
+        }
+      },
+      "primary_keys": [
+        "deal_id"
+      ],
+      "foreign_keys": {}
+    },
+    "emails": {
+      "columns": {
+        "email_id": {
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        "contact_id": {
+          "type": "bigint",
+          "nullable": true,
+          "default": null
+        },
+        "subject": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "send_status": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "body": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "direction": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "subject_embedding": {
+          "type": "USER-DEFINED",
+          "nullable": true,
+          "default": null
+        },
+        "body_embedding": {
+          "type": "USER-DEFINED",
+          "nullable": true,
+          "default": null
+        }
+      },
+      "primary_keys": [
+        "email_id"
+      ],
+      "foreign_keys": {
+        "contact_id": {
+          "references_table": "contacts",
+          "references_column": "contact_id"
+        }
+      }
+    },
+    "notes": {
+      "columns": {
+        "note_id": {
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        "body": {
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        "activity_date": {
+          "type": "date",
+          "nullable": true,
+          "default": null
+        },
+        "activity_assigned_to_user_id": {
+          "type": "bigint",
+          "nullable": true,
+          "default": null
+        },
+        "company_id": {
+          "type": "bigint",
+          "nullable": true,
+          "default": null
+        },
+        "ticket_id": {
+          "type": "bigint",
+          "nullable": true,
+          "default": null
+        },
+        "deal_id": {
+          "type": "bigint",
+          "nullable": true,
+          "default": null
+        },
+        "contact_id": {
+          "type": "bigint",
+          "nullable": true,
+          "default": null
+        },
+        "body_embedding": {
+          "type": "USER-DEFINED",
+          "nullable": true,
+          "default": null
+        }
+      },
+      "primary_keys": [
+        "note_id"
+      ],
+      "foreign_keys": {
+        "activity_assigned_to_user_id": {
+          "references_table": "users",
+          "references_column": "user_id"
+        },
+        "company_id": {
+          "references_table": "companies",
+          "references_column": "company_id"
+        },
+        "ticket_id": {
+          "references_table": "tickets",
+          "references_column": "ticket_id"
+        },
+        "deal_id": {
+          "references_table": "deals",
+          "references_column": "deal_id"
+        },
+        "contact_id": {
+          "references_table": "contacts",
+          "references_column": "contact_id"
+        }
+      }
+    },
+    "products": {
+      "columns": {
+        "product_id": {
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        "external_id": {
+          "type": "bigint",
+          "nullable": true,
+          "default": null
+        },
+        "name": {
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        "description": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "price": {
+          "type": "numeric",
+          "nullable": true,
+          "default": null
+        },
+        "cost_of_goods_sold": {
+          "type": "numeric",
+          "nullable": true,
+          "default": null
+        },
+        "description_embedding": {
+          "type": "USER-DEFINED",
+          "nullable": true,
+          "default": null
+        }
+      },
+      "primary_keys": [
+        "product_id"
+      ],
+      "foreign_keys": {}
+    },
+    "tasks": {
+      "columns": {
+        "task_id": {
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        "due_at": {
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null
+        },
+        "title": {
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        "notes": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "priority": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "status": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "task_type": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "queue": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "assigned_to_user_id": {
+          "type": "bigint",
+          "nullable": true,
+          "default": null
+        },
+        "deal_id": {
+          "type": "bigint",
+          "nullable": true,
+          "default": null
+        },
+        "title_embedding": {
+          "type": "USER-DEFINED",
+          "nullable": true,
+          "default": null
+        },
+        "notes_embedding": {
+          "type": "USER-DEFINED",
+          "nullable": true,
+          "default": null
+        }
+      },
+      "primary_keys": [
+        "task_id"
+      ],
+      "foreign_keys": {
+        "assigned_to_user_id": {
+          "references_table": "users",
+          "references_column": "user_id"
+        },
+        "deal_id": {
+          "references_table": "deals",
+          "references_column": "deal_id"
+        }
+      }
+    },
+    "tickets": {
+      "columns": {
+        "ticket_id": {
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        "name": {
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        "pipeline": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "status": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "priority": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "owner_user_id": {
+          "type": "bigint",
+          "nullable": true,
+          "default": null
+        },
+        "source": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "issue_of_interest": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        "issued_ticket_before": {
+          "type": "boolean",
+          "nullable": true,
+          "default": null
+        },
+        "name_embedding": {
+          "type": "USER-DEFINED",
+          "nullable": true,
+          "default": null
+        },
+        "issue_embedding": {
+          "type": "USER-DEFINED",
+          "nullable": true,
+          "default": null
+        }
+      },
+      "primary_keys": [
+        "ticket_id"
+      ],
+      "foreign_keys": {
+        "owner_user_id": {
+          "references_table": "users",
+          "references_column": "user_id"
+        }
+      }
+    },
+    "users": {
+      "columns": {
+        "user_id": {
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        "email": {
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        "full_name": {
+          "type": "text",
+          "nullable": true,
+          "default": null
+        }
+      },
+      "primary_keys": [
+        "user_id"
+      ],
+      "foreign_keys": {}
+    }
+  },
+  "relationships": {
+    "call_contacts": {
+      "referenced_by": [],
+      "references": [
+        "call_id",
+        "contact_id"
+      ]
+    },
+    "calls": {
+      "referenced_by": [
+        "call_contacts.call_id"
+      ],
+      "references": [
+        "assigned_to_user_id"
+      ]
+    },
+    "companies": {
+      "referenced_by": [
+        "company_company_associations.company_id",
+        "company_company_associations.associated_company_id",
+        "company_contact_associations.company_id",
+        "deal_company_associations.company_id",
+        "notes.company_id"
+      ],
+      "references": []
+    },
+    "company_company_associations": {
+      "referenced_by": [],
+      "references": [
+        "company_id",
+        "associated_company_id"
+      ]
+    },
+    "company_contact_associations": {
+      "referenced_by": [],
+      "references": [
+        "company_id",
+        "contact_id"
+      ]
+    },
+    "contact_contact_associations": {
+      "referenced_by": [],
+      "references": [
+        "contact_id",
+        "associated_contact_id"
+      ]
+    },
+    "contacts": {
+      "referenced_by": [
+        "call_contacts.contact_id",
+        "company_contact_associations.contact_id",
+        "contact_contact_associations.contact_id",
+        "contact_contact_associations.associated_contact_id",
+        "emails.contact_id",
+        "notes.contact_id"
+      ],
+      "references": []
+    },
+    "deal_company_associations": {
+      "referenced_by": [],
+      "references": [
+        "deal_id",
+        "company_id"
+      ]
+    },
+    "deal_line_items": {
+      "referenced_by": [],
+      "references": [
+        "deal_id",
+        "product_id"
+      ]
+    },
+    "deals": {
+      "referenced_by": [
+        "deal_company_associations.deal_id",
+        "deal_line_items.deal_id",
+        "notes.deal_id",
+        "tasks.deal_id"
+      ],
+      "references": []
+    },
+    "emails": {
+      "referenced_by": [],
+      "references": [
+        "contact_id"
+      ]
+    },
+    "notes": {
+      "referenced_by": [],
+      "references": [
+        "activity_assigned_to_user_id",
+        "company_id",
+        "ticket_id",
+        "deal_id",
+        "contact_id"
+      ]
+    },
+    "products": {
+      "referenced_by": [
+        "deal_line_items.product_id"
+      ],
+      "references": []
+    },
+    "tasks": {
+      "referenced_by": [],
+      "references": [
+        "assigned_to_user_id",
+        "deal_id"
+      ]
+    },
+    "tickets": {
+      "referenced_by": [
+        "notes.ticket_id"
+      ],
+      "references": [
+        "owner_user_id"
+      ]
+    },
+    "users": {
+      "referenced_by": [
+        "calls.assigned_to_user_id",
+        "notes.activity_assigned_to_user_id",
+        "tasks.assigned_to_user_id",
+        "tickets.owner_user_id"
+      ],
+      "references": []
+    }
+  }
+}

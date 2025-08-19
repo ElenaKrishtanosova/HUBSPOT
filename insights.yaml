@@ -1,0 +1,72 @@
+insights:
+  - id: 1
+    insight_name: "Model 'Sunset' Product Issues"
+    category: "Product"
+    business_value: "Risk"
+    insight_text: "Over the last month, support calls about the 'Sunset' model have increased by 40%. Clients are frequently complaining about uneven toasting and a stuck lever."
+    
+  - id: 2
+    insight_name: "Growing Demand for Smart Toasters"
+    category: "Sales"
+    business_value: "Opportunity"
+    insight_text: "Three of our largest retail partners in Santa Monica and Beverly Hills have requested information about 'smart' toasters with Wi-Fi and app-controlled features. This indicates high potential demand in the premium market."
+    
+  - id: 3
+    insight_name: "Office Customer Needs"
+    category: "Customers"
+    business_value: "Opportunity"
+    insight_text: "Five out of seven large corporate clients who purchased toasters in bulk expressed a need for a 'silent' model. The loud operation of the toaster is a key barrier to office sales."
+    
+  - id: 4
+    insight_name: "Increased Interest in Venice Beach Area"
+    category: "Geography"
+    business_value: "Marketing"
+    insight_text: "Website traffic and orders from the Venice Beach area (zip code 90291) have risen by 25% over the last two weeks. This may be linked to a new article in a local blog."
+    
+  - id: 5
+    insight_name: "Feedback on Design and Packaging"
+    category: "Marketing"
+    business_value: "Opportunity"
+    insight_text: "Over 80% of new customers mentioned in their reviews that the 'futuristic design' and 'eco-friendly packaging' were key factors in their purchase of the 'Cosmo' model."
+    
+  - id: 6
+    insight_name: "Competitive Pricing"
+    category: "Pricing"
+    business_value: "Risk"
+    insight_text: "Several potential mid-range customers have abandoned purchases, citing a competitor's ('Toastly') lower prices. The price of our 'Retro' model is perceived as too high."
+    
+  - id: 7
+    insight_name: "Declining Interest in Extra Features"
+    category: "Sales"
+    business_value: "Risk"
+    insight_text: "Among buyers of the toaster with the extra 'defrost' function, 70% state they never use it. Customers value reliability more than unnecessary features."
+    
+  - id: 8
+    insight_name: "Most Popular 'Recipes'"
+    category: "Engagement"
+    business_value: "Marketing"
+    insight_text: "The most popular search queries on our 'recipes' page are 'perfect avocado toast' and 'how to make cheesy breadsticks'. This points to the culinary preferences of our audience."
+    
+  - id: 9
+    insight_name: "Instructions Misunderstanding"
+    category: "Support"
+    business_value: "Risk"
+    insight_text: "In 20% of support calls, clients ask how to activate the 'bagel' function. The problem is not the toaster but that the instructions for this feature are unclear."
+    
+  - id: 10
+    insight_name: "Reviews from 'Long-Term' Customers"
+    category: "Loyalty"
+    business_value: "Opportunity"
+    insight_text: "Customers who bought a toaster over 3 years ago and have returned for a new purchase most often praise 'durability' and 'ease of use' in their reviews."
+
+  - id: 11
+    insight_name: "Decline in Suburban Offline Sales"
+    category: "Sales"
+    business_value: "Risk"
+    insight_text: "Analysis from the last 6 months shows a significant drop in offline sales in stores located in the suburbs of Los Angeles, while online sales remain stable. This may indicate a change in shopping habits."
+
+  - id: 12
+    insight_name: "New Market Request: 'Toaster for one'"
+    category: "Product"
+    business_value: "Opportunity"
+    insight_text: "Seven sales manager notes from densely populated areas (e.g., Downtown LA) contain requests for compact 'toasters for one' person. This indicates a potential new market segment."
