@@ -1,0 +1,109 @@
+line_item_id,deal_id,product_id,name,quantity,unit_price
+1,DEAL000001,1,2-slice toaster,1,91.71
+2,DEAL000002,4,4-slice toaster,3,140.51
+3,DEAL000002,2,crumb tray kit,2,46.28
+4,DEAL000003,5,smart toaster,3,149.52
+5,DEAL000003,4,display stand,2,118.01
+6,DEAL000003,5,4-slice toaster,5,91.82
+7,DEAL000004,1,2-slice toaster,5,185.17
+8,DEAL000005,5,smart toaster,2,125.27
+9,DEAL000006,3,crumb tray kit,3,130.34
+10,DEAL000007,2,4-slice toaster,4,63.82
+11,DEAL000007,5,crumb tray kit,5,79.45
+12,DEAL000008,5,smart toaster,5,176.90
+13,DEAL000008,5,4-slice toaster,1,33.96
+14,DEAL000008,3,smart toaster,5,36.18
+15,DEAL000009,5,display stand,5,146.19
+16,DEAL000010,3,crumb tray kit,5,67.35
+17,DEAL000010,4,2-slice toaster,1,109.32
+18,DEAL000010,5,smart toaster,4,128.26
+19,DEAL000011,1,crumb tray kit,1,188.32
+20,DEAL000011,5,display stand,5,113.25
+21,DEAL000012,3,display stand,4,75.56
+22,DEAL000012,4,4-slice toaster,3,81.92
+23,DEAL000012,3,display stand,5,93.42
+24,DEAL000013,1,crumb tray kit,4,134.20
+25,DEAL000013,2,2-slice toaster,3,80.30
+26,DEAL000013,1,crumb tray kit,4,78.75
+27,DEAL000014,4,display stand,1,110.50
+28,DEAL000014,1,display stand,2,130.40
+29,DEAL000015,5,2-slice toaster,4,49.17
+30,DEAL000015,4,smart toaster,1,167.27
+31,DEAL000016,3,display stand,4,94.37
+32,DEAL000016,5,display stand,2,88.18
+33,DEAL000017,5,2-slice toaster,2,63.28
+34,DEAL000018,1,crumb tray kit,3,50.96
+35,DEAL000019,1,4-slice toaster,1,39.08
+36,DEAL000019,3,4-slice toaster,4,33.29
+37,DEAL000019,4,crumb tray kit,4,169.39
+38,DEAL000020,4,crumb tray kit,3,111.53
+39,DEAL000020,4,smart toaster,4,51.53
+40,DEAL000021,3,smart toaster,4,129.44
+41,DEAL000021,4,display stand,3,175.22
+42,DEAL000022,5,display stand,2,164.05
+43,DEAL000023,5,crumb tray kit,3,27.03
+44,DEAL000023,1,crumb tray kit,2,95.94
+45,DEAL000023,3,smart toaster,2,30.43
+46,DEAL000024,1,crumb tray kit,2,38.08
+47,DEAL000024,4,display stand,5,199.77
+48,DEAL000025,2,smart toaster,3,144.20
+49,DEAL000025,2,2-slice toaster,4,168.50
+50,DEAL000026,4,4-slice toaster,2,104.80
+51,DEAL000027,4,display stand,2,167.42
+52,DEAL000027,2,4-slice toaster,2,25.34
+53,DEAL000028,3,2-slice toaster,5,177.55
+54,DEAL000028,5,crumb tray kit,4,130.82
+55,DEAL000028,4,2-slice toaster,4,164.14
+56,DEAL000029,1,display stand,5,94.21
+57,DEAL000029,2,2-slice toaster,4,108.33
+58,DEAL000029,5,smart toaster,3,54.05
+59,DEAL000030,2,2-slice toaster,4,182.33
+60,DEAL000030,4,crumb tray kit,2,177.87
+61,DEAL000030,2,4-slice toaster,4,144.40
+62,DEAL000031,1,smart toaster,4,129.52
+63,DEAL000031,5,4-slice toaster,2,132.35
+64,DEAL000032,4,display stand,2,128.97
+65,DEAL000032,4,crumb tray kit,3,169.20
+66,DEAL000032,3,display stand,4,156.98
+67,DEAL000033,4,2-slice toaster,1,165.26
+68,DEAL000034,1,smart toaster,4,176.52
+69,DEAL000035,5,smart toaster,2,57.42
+70,DEAL000035,2,crumb tray kit,3,40.06
+71,DEAL000035,5,smart toaster,4,177.17
+72,DEAL000036,2,display stand,5,177.66
+73,DEAL000037,3,crumb tray kit,2,72.32
+74,DEAL000037,2,2-slice toaster,4,164.71
+75,DEAL000038,3,smart toaster,5,149.81
+76,DEAL000038,5,smart toaster,4,98.41
+77,DEAL000039,5,display stand,4,178.63
+78,DEAL000039,2,2-slice toaster,2,125.97
+79,DEAL000040,2,display stand,4,132.30
+80,DEAL000041,3,crumb tray kit,3,97.17
+81,DEAL000042,5,smart toaster,1,127.09
+82,DEAL000042,4,display stand,4,83.37
+83,DEAL000042,1,display stand,5,84.26
+84,DEAL000043,2,2-slice toaster,5,46.08
+85,DEAL000044,2,2-slice toaster,2,84.96
+86,DEAL000045,4,2-slice toaster,2,36.92
+87,DEAL000045,3,smart toaster,4,59.23
+88,DEAL000045,1,2-slice toaster,3,156.99
+89,DEAL000046,3,2-slice toaster,5,48.99
+90,DEAL000046,1,display stand,2,69.29
+91,DEAL000046,3,4-slice toaster,4,164.21
+92,DEAL000047,4,crumb tray kit,2,72.60
+93,DEAL000047,3,crumb tray kit,4,162.64
+94,DEAL000047,4,smart toaster,2,161.21
+95,DEAL000048,4,2-slice toaster,4,101.82
+96,DEAL000048,5,display stand,5,64.58
+97,DEAL000049,2,display stand,4,83.80
+98,DEAL000049,1,4-slice toaster,5,122.54
+99,DEAL000050,2,2-slice toaster,1,186.38
+100,DEAL000051,5,4-slice toaster,5,199.54
+101,DEAL000052,1,smart toaster,3,153.69
+102,DEAL000052,4,4-slice toaster,1,147.66
+103,DEAL000053,5,smart toaster,2,162.57
+104,DEAL000054,2,crumb tray kit,5,93.26
+105,DEAL000055,4,crumb tray kit,4,175.96
+106,DEAL000056,4,2-slice toaster,2,121.73
+107,DEAL000056,5,4-slice toaster,3,159.19
+108,DEAL000056,4,4-slice toaster,2,139.51

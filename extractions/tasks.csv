@@ -1,0 +1,127 @@
+task_id,due_at,title,notes,priority,status,task_type,queue,assigned_to_user_id,deal_id,title_embedding,notes_embedding
+1,2024-09-10 01:47:12.216707+02:00,"Internal Task Note:
+
+1. Send a 'thank you' email to all recent clients for their business and support.
+2. Follow up with the supplier regarding the delayed order and check on the status.
+3. Clarify product information with the marketing team before updating the website.
+4. Schedule a meeting with the sales team to discuss strategy for the upcoming quarter.
+5. Review and update internal processes for better efficiency and communication.","Task: Follow up with customer regarding delayed order
+
+Details:
+- Customer: John Smith
+- Order number: #12345
+- Product: XYZ Widget
+- Reason for delay: Shipping error
+- New estimated delivery date: 10/15/2021
+
+Action steps:
+1. Contact customer via email to apologize for the delay and provide updated delivery date
+2. Offer discount or free shipping on future orders as a gesture of goodwill
+3. Ensure customer satisfaction and offer any additional assistance needed 
+
+Deadline: 10/12/2021
+
+Assigned to: Customer Service team",Low,Completed,Follow-up,General,3,DEAL000003,,
+2,2024-09-20 05:45:44.392420+02:00,"Subject: Follow-up on delayed order
+
+Hi team,
+
+I just wanted to remind everyone that we have a customer who placed an order last week that has experienced a slight delay in delivery. Please reach out to the shipping department to get an update on the status of the order and ensure that the customer is informed of any potential delays. Let's make sure we provide excellent customer service and address any issues promptly.
+
+Thanks,
+[Your Name]","Internal Task Note:
+
+1. Send a 'thank you' email to the client for their recent purchase and offer a discount code for their next order.
+
+2. Check on order #12345 for any delays and follow up with the shipping company for an update.
+
+3. Clarify product information for the sales team regarding the new product line and update the website accordingly.
+
+4. Schedule a meeting with the marketing team to discuss upcoming promotions and campaigns.
+
+5. Follow up with the warehouse team to ensure that all products are in stock and ready to ship for upcoming orders.
+
+6. Review customer feedback and address any issues or concerns that have been raised.
+
+7. Coordinate with the IT department to resolve any technical issues with the online ordering system.
+
+8. Update",High,Not Started,Follow-up,General,2,DEAL000034,,
+3,2024-11-17 08:01:09.621377+01:00,"Task: Follow up on order #123456
+
+Details: Customer has reported a slight delay in receiving their order. Please reach out to our shipping department to check the status and provide the customer with an update.
+
+Deadline: End of day
+
+Note: It is important to ensure customer satisfaction and address any issues promptly. Thank you!","Internal Task Note:
+
+Task: Send a 'thank you' email to the client for their recent purchase and positive feedback. 
+
+Task: Check on order #12345 for any potential delays and follow up with the shipping department for an update.
+
+Task: Clarify product information on the new line of skincare products with the marketing team before sending out promotional materials. 
+
+Task: Follow up with the sales team to ensure all leads from the recent trade show have been properly contacted and entered into the CRM system. 
+
+Task: Schedule a meeting with the design team to discuss updates to the company website and branding materials.",Medium,In Progress,Call,General,1,DEAL000006,,
+4,2024-11-28 15:46:51.887928+01:00,"Task: Follow up with customer regarding delayed order
+
+Details: Customer placed an order for XYZ product on April 15th, but there has been a slight delay in processing. Reach out to the customer via email or phone to apologize for the delay and provide an updated timeline for when the order will be shipped. Offer any additional assistance or compensation if necessary to ensure customer satisfaction.
+
+Deadline: Complete by end of day on April 20th
+
+Assigned to: Customer Service Representative
+
+Notes: Be sure to communicate clearly and professionally, and document all interactions with the customer in the system. Keep the customer informed and address any concerns they may have promptly. Thank you for your attention to this matter.","Task: Send a 'thank you' email to our top 10 customers for their continued support.
+
+Task: Follow up on order #12345 with the supplier to check on the slight delay in delivery.
+
+Task: Clarify product specifications with the product development team before updating the website.
+
+Task: Review customer feedback on social media and address any concerns or questions promptly.
+
+Task: Schedule a meeting with the marketing team to discuss upcoming promotions and campaigns.",Medium,Completed,Call,General,2,DEAL000039,,
+5,2025-01-17 04:15:11.955567+01:00,"Task: Follow up with customer regarding their recent order
+
+Details: Customer's order has experienced a slight delay in processing. Check the status of the order and reach out to the customer to provide an update and apologize for any inconvenience caused.
+
+Deadline: End of day today
+
+Note: Remember to remain courteous and professional in all communications with the customer. Thank them for their patience and offer any necessary assistance to resolve the issue promptly.","Task: Follow up with customer regarding order delivery
+
+Details:
+- Customer placed an order for a custom product on [date]
+- Order was scheduled to be delivered on [delivery date]
+- Customer has reached out to inquire about the status of their order due to a slight delay
+- Check the tracking information and contact the shipping carrier to get an update on the delivery status
+- Reach out to the customer via email or phone call to provide them with an update on their order and apologize for any inconvenience caused
+
+Deadline: [insert deadline for follow-up]
+
+Assigned to: [insert team member responsible for follow-up]",Medium,In Progress,Research,Sales,3,DEAL000050,,
+6,2025-01-07 07:46:11.976484+01:00,"Task: Follow up with customer regarding delayed order
+- Contact customer to apologize for delay and provide updated timeline for shipment
+- Offer discount or compensation for inconvenience
+- Ensure customer is satisfied with resolution and address any additional concerns
+
+Task: Clarify product information for marketing materials
+- Review product specifications and features
+- Consult with product development team to confirm details
+- Update marketing materials with accurate information and ensure consistency across all platforms
+
+Task: Send thank you note to client for recent purchase
+- Express gratitude for their support and business
+- Include personalized message to show appreciation
+- Offer discount on future purchases as a token of thanks","Task: Follow up on order #12345 to ensure delivery is on track and address any delays
+Due Date: 09/15/2021
+
+Task: Send thank you email to client for their recent purchase and offer a discount code for future orders
+Due Date: 09/17/2021
+
+Task: Clarify product specifications with the supplier to ensure accurate information on the website
+Due Date: 09/20/2021
+
+Task: Review customer feedback on product #6789 and address any issues or concerns raised
+Due Date: 09/25/2021
+
+Task: Check inventory levels for product #54321 and reorder if stock is running low
+Due Date: 09/30/2021",Medium,In Progress,Call,Support,1,DEAL000025,,
