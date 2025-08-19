@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 import psycopg2
 from psycopg2 import sql
 
-load_dotenv(dotenv_path=os.path.join(os.getcwd(), ".env"))
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"))
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
 # --- Configuration ---
