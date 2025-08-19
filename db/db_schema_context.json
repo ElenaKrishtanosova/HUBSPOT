@@ -1,914 +1,272 @@
 {
-  "database_name": "hubspot_crm",
+  "database_name": "HubSpot CRM",
+  "schema_version": "2.0",
+  "description": "Updated schema with new field names and structure for better data organization",
   "tables": {
-    "call_contacts": {
-      "columns": {
-        "call_id": {
-          "type": "bigint",
-          "nullable": false,
-          "default": null
-        },
-        "contact_id": {
-          "type": "bigint",
-          "nullable": false,
-          "default": null
-        }
-      },
-      "primary_keys": [
-        "call_id",
-        "contact_id"
-      ],
-      "foreign_keys": {
-        "call_id": {
-          "references_table": "calls",
-          "references_column": "call_id"
-        },
-        "contact_id": {
-          "references_table": "contacts",
-          "references_column": "contact_id"
-        }
-      }
-    },
-    "calls": {
-      "columns": {
-        "call_id": {
-          "type": "bigint",
-          "nullable": false,
-          "default": null
-        },
-        "notes": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "direction": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "status": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "title": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "activity_at": {
-          "type": "timestamp with time zone",
-          "nullable": true,
-          "default": null
-        },
-        "assigned_to_user_id": {
-          "type": "bigint",
-          "nullable": true,
-          "default": null
-        },
-        "duration_ms": {
-          "type": "bigint",
-          "nullable": true,
-          "default": null
-        },
-        "outcome": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "source": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "from_number": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "to_number": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "recording_url": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "transcript_available": {
-          "type": "boolean",
-          "nullable": true,
-          "default": null
-        },
-        "call_meeting_type": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "notes_embedding": {
-          "type": "USER-DEFINED",
-          "nullable": true,
-          "default": null
-        }
-      },
-      "primary_keys": [
-        "call_id"
-      ],
-      "foreign_keys": {
-        "assigned_to_user_id": {
-          "references_table": "users",
-          "references_column": "user_id"
-        }
-      }
-    },
     "companies": {
+      "description": "Company information and details",
       "columns": {
-        "company_id": {
-          "type": "bigint",
-          "nullable": false,
-          "default": null
+        "company_id": {"type": "BIGSERIAL", "constraint": "PRIMARY KEY"},
+        "name": {"type": "TEXT", "constraint": "NOT NULL"},
+        "company_domain": {"type": "TEXT", "constraint": "UNIQUE, FK for associations"},
+        "phone": {"type": "TEXT", "format": "+[countrycode][digits]"},
+        "city": {"type": "TEXT"},
+        "industry": {
+          "type": "TEXT", 
+          "constraint": "CHECK (industry IN ('Retail', 'Hospitality', 'E-commerce', 'Wholesale', 'Manufacturing', 'Distribution'))"
         },
-        "name": {
-          "type": "text",
-          "nullable": false,
-          "default": null
-        },
-        "domain": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "phone_number": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "city": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "name_embedding": {
-          "type": "USER-DEFINED",
-          "nullable": true,
-          "default": null
-        }
-      },
-      "primary_keys": [
-        "company_id"
-      ],
-      "foreign_keys": {}
-    },
-    "company_company_associations": {
-      "columns": {
-        "company_id": {
-          "type": "bigint",
-          "nullable": false,
-          "default": null
-        },
-        "associated_company_id": {
-          "type": "bigint",
-          "nullable": false,
-          "default": null
-        },
-        "label": {
-          "type": "text",
-          "nullable": false,
-          "default": "''::text"
-        }
-      },
-      "primary_keys": [
-        "company_id",
-        "associated_company_id",
-        "label"
-      ],
-      "foreign_keys": {
-        "company_id": {
-          "references_table": "companies",
-          "references_column": "company_id"
-        },
-        "associated_company_id": {
-          "references_table": "companies",
-          "references_column": "company_id"
-        }
-      }
-    },
-    "company_contact_associations": {
-      "columns": {
-        "company_id": {
-          "type": "bigint",
-          "nullable": false,
-          "default": null
-        },
-        "contact_id": {
-          "type": "bigint",
-          "nullable": false,
-          "default": null
-        },
-        "label": {
-          "type": "text",
-          "nullable": false,
-          "default": "''::text"
-        }
-      },
-      "primary_keys": [
-        "company_id",
-        "contact_id",
-        "label"
-      ],
-      "foreign_keys": {
-        "company_id": {
-          "references_table": "companies",
-          "references_column": "company_id"
-        },
-        "contact_id": {
-          "references_table": "contacts",
-          "references_column": "contact_id"
-        }
-      }
-    },
-    "contact_contact_associations": {
-      "columns": {
-        "contact_id": {
-          "type": "bigint",
-          "nullable": false,
-          "default": null
-        },
-        "associated_contact_id": {
-          "type": "bigint",
-          "nullable": false,
-          "default": null
-        },
-        "label": {
-          "type": "text",
-          "nullable": false,
-          "default": "''::text"
-        }
-      },
-      "primary_keys": [
-        "contact_id",
-        "associated_contact_id",
-        "label"
-      ],
-      "foreign_keys": {
-        "contact_id": {
-          "references_table": "contacts",
-          "references_column": "contact_id"
-        },
-        "associated_contact_id": {
-          "references_table": "contacts",
-          "references_column": "contact_id"
-        }
+        "number_of_employees": {"type": "INTEGER"},
+        "name_embedding": {"type": "VECTOR(768)", "purpose": "semantic search"}
       }
     },
     "contacts": {
+      "description": "Contact person information",
       "columns": {
-        "contact_id": {
-          "type": "bigint",
-          "nullable": false,
-          "default": null
-        },
-        "external_id": {
-          "type": "bigint",
-          "nullable": true,
-          "default": null
-        },
-        "first_name": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "last_name": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "email": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "phone": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "name_embedding": {
-          "type": "USER-DEFINED",
-          "nullable": true,
-          "default": null
-        }
-      },
-      "primary_keys": [
-        "contact_id"
-      ],
-      "foreign_keys": {}
-    },
-    "deal_company_associations": {
-      "columns": {
-        "deal_id": {
-          "type": "bigint",
-          "nullable": false,
-          "default": null
-        },
-        "company_id": {
-          "type": "bigint",
-          "nullable": false,
-          "default": null
-        },
-        "label": {
-          "type": "text",
-          "nullable": false,
-          "default": "''::text"
-        }
-      },
-      "primary_keys": [
-        "deal_id",
-        "company_id",
-        "label"
-      ],
-      "foreign_keys": {
-        "deal_id": {
-          "references_table": "deals",
-          "references_column": "deal_id"
-        },
-        "company_id": {
-          "references_table": "companies",
-          "references_column": "company_id"
-        }
-      }
-    },
-    "deal_line_items": {
-      "columns": {
-        "line_item_id": {
-          "type": "bigint",
-          "nullable": false,
-          "default": null
-        },
-        "deal_id": {
-          "type": "bigint",
-          "nullable": false,
-          "default": null
-        },
-        "product_id": {
-          "type": "bigint",
-          "nullable": true,
-          "default": null
-        },
-        "name": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "quantity": {
-          "type": "integer",
-          "nullable": false,
-          "default": "1"
-        },
-        "unit_price": {
-          "type": "numeric",
-          "nullable": true,
-          "default": null
-        }
-      },
-      "primary_keys": [
-        "line_item_id"
-      ],
-      "foreign_keys": {
-        "deal_id": {
-          "references_table": "deals",
-          "references_column": "deal_id"
-        },
-        "product_id": {
-          "references_table": "products",
-          "references_column": "product_id"
-        }
+        "contact_id": {"type": "BIGSERIAL", "constraint": "PRIMARY KEY"},
+        "first_name": {"type": "TEXT"},
+        "last_name": {"type": "TEXT"},
+        "contact_email": {"type": "TEXT", "constraint": "UNIQUE, PK/association key"},
+        "mobile_phone": {"type": "TEXT", "format": "+[countrycode][digits]"},
+        "company_domain": {"type": "TEXT", "constraint": "FK → companies.company_domain"},
+        "name_embedding": {"type": "VECTOR(768)", "purpose": "fuzzy person lookup"}
       }
     },
     "deals": {
+      "description": "Sales deals and opportunities",
       "columns": {
-        "deal_id": {
-          "type": "bigint",
-          "nullable": false,
-          "default": null
+        "deal_id": {"type": "TEXT", "constraint": "PRIMARY KEY"},
+        "deal_name": {"type": "TEXT", "constraint": "NOT NULL"},
+        "deal_stage": {
+          "type": "TEXT", 
+          "constraint": "CHECK (deal_stage IN ('Appointment Scheduled', 'Qualified to Buy', 'Presentation Scheduled', 'Closed Won', 'Closed Lost'))"
         },
-        "external_id": {
-          "type": "bigint",
-          "nullable": true,
-          "default": null
-        },
-        "name": {
-          "type": "text",
-          "nullable": false,
-          "default": null
-        },
-        "pipeline": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "stage": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "amount": {
-          "type": "numeric",
-          "nullable": true,
-          "default": null
-        },
-        "close_date": {
-          "type": "date",
-          "nullable": true,
-          "default": null
-        },
+        "pipeline": {"type": "TEXT", "example": "Sales Pipeline"},
+        "amount": {"type": "NUMERIC(18,2)"},
+        "close_date": {"type": "TEXT", "format": "dd/mm/yyyy hh:mm"},
+        "contact_email": {"type": "TEXT", "constraint": "FK → contacts.contact_email"},
+        "company_domain": {"type": "TEXT", "constraint": "FK → companies.company_domain"},
         "product_of_interest": {
-          "type": "text",
-          "nullable": true,
-          "default": null
+          "type": "TEXT", 
+          "constraint": "CHECK (product_of_interest IN ('2-slice toaster', '4-slice toaster', 'smart toaster', 'crumb tray kit', 'display stand'))"
         },
-        "point_of_contact_name": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "name_embedding": {
-          "type": "USER-DEFINED",
-          "nullable": true,
-          "default": null
-        }
-      },
-      "primary_keys": [
-        "deal_id"
-      ],
-      "foreign_keys": {}
-    },
-    "emails": {
-      "columns": {
-        "email_id": {
-          "type": "bigint",
-          "nullable": false,
-          "default": null
-        },
-        "contact_id": {
-          "type": "bigint",
-          "nullable": true,
-          "default": null
-        },
-        "subject": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "send_status": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "body": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "direction": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "subject_embedding": {
-          "type": "USER-DEFINED",
-          "nullable": true,
-          "default": null
-        },
-        "body_embedding": {
-          "type": "USER-DEFINED",
-          "nullable": true,
-          "default": null
-        }
-      },
-      "primary_keys": [
-        "email_id"
-      ],
-      "foreign_keys": {
-        "contact_id": {
-          "references_table": "contacts",
-          "references_column": "contact_id"
-        }
-      }
-    },
-    "notes": {
-      "columns": {
-        "note_id": {
-          "type": "bigint",
-          "nullable": false,
-          "default": null
-        },
-        "body": {
-          "type": "text",
-          "nullable": false,
-          "default": null
-        },
-        "activity_date": {
-          "type": "date",
-          "nullable": true,
-          "default": null
-        },
-        "activity_assigned_to_user_id": {
-          "type": "bigint",
-          "nullable": true,
-          "default": null
-        },
-        "company_id": {
-          "type": "bigint",
-          "nullable": true,
-          "default": null
-        },
-        "ticket_id": {
-          "type": "bigint",
-          "nullable": true,
-          "default": null
-        },
-        "deal_id": {
-          "type": "bigint",
-          "nullable": true,
-          "default": null
-        },
-        "contact_id": {
-          "type": "bigint",
-          "nullable": true,
-          "default": null
-        },
-        "body_embedding": {
-          "type": "USER-DEFINED",
-          "nullable": true,
-          "default": null
-        }
-      },
-      "primary_keys": [
-        "note_id"
-      ],
-      "foreign_keys": {
-        "activity_assigned_to_user_id": {
-          "references_table": "users",
-          "references_column": "user_id"
-        },
-        "company_id": {
-          "references_table": "companies",
-          "references_column": "company_id"
-        },
-        "ticket_id": {
-          "references_table": "tickets",
-          "references_column": "ticket_id"
-        },
-        "deal_id": {
-          "references_table": "deals",
-          "references_column": "deal_id"
-        },
-        "contact_id": {
-          "references_table": "contacts",
-          "references_column": "contact_id"
-        }
-      }
-    },
-    "products": {
-      "columns": {
-        "product_id": {
-          "type": "bigint",
-          "nullable": false,
-          "default": null
-        },
-        "external_id": {
-          "type": "bigint",
-          "nullable": true,
-          "default": null
-        },
-        "name": {
-          "type": "text",
-          "nullable": false,
-          "default": null
-        },
-        "description": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "price": {
-          "type": "numeric",
-          "nullable": true,
-          "default": null
-        },
-        "cost_of_goods_sold": {
-          "type": "numeric",
-          "nullable": true,
-          "default": null
-        },
-        "description_embedding": {
-          "type": "USER-DEFINED",
-          "nullable": true,
-          "default": null
-        }
-      },
-      "primary_keys": [
-        "product_id"
-      ],
-      "foreign_keys": {}
-    },
-    "tasks": {
-      "columns": {
-        "task_id": {
-          "type": "bigint",
-          "nullable": false,
-          "default": null
-        },
-        "due_at": {
-          "type": "timestamp with time zone",
-          "nullable": true,
-          "default": null
-        },
-        "title": {
-          "type": "text",
-          "nullable": false,
-          "default": null
-        },
-        "notes": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "priority": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "status": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "task_type": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "queue": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "assigned_to_user_id": {
-          "type": "bigint",
-          "nullable": true,
-          "default": null
-        },
-        "deal_id": {
-          "type": "bigint",
-          "nullable": true,
-          "default": null
-        },
-        "title_embedding": {
-          "type": "USER-DEFINED",
-          "nullable": true,
-          "default": null
-        },
-        "notes_embedding": {
-          "type": "USER-DEFINED",
-          "nullable": true,
-          "default": null
-        }
-      },
-      "primary_keys": [
-        "task_id"
-      ],
-      "foreign_keys": {
-        "assigned_to_user_id": {
-          "references_table": "users",
-          "references_column": "user_id"
-        },
-        "deal_id": {
-          "references_table": "deals",
-          "references_column": "deal_id"
-        }
+        "point_of_contact": {"type": "TEXT"},
+        "description": {"type": "TEXT", "purpose": "deal notes or associate emails"},
+        "name_embedding": {"type": "VECTOR(768)", "purpose": "semantic search"}
       }
     },
     "tickets": {
+      "description": "Support tickets and issues",
       "columns": {
-        "ticket_id": {
-          "type": "bigint",
-          "nullable": false,
-          "default": null
-        },
-        "name": {
-          "type": "text",
-          "nullable": false,
-          "default": null
-        },
-        "pipeline": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "status": {
-          "type": "text",
-          "nullable": true,
-          "default": null
+        "ticket_id": {"type": "TEXT", "constraint": "PRIMARY KEY"},
+        "ticket_name": {"type": "TEXT", "constraint": "NOT NULL"},
+        "pipeline": {"type": "TEXT", "default": "Support Pipeline"},
+        "ticket_status": {
+          "type": "TEXT", 
+          "constraint": "CHECK (ticket_status IN ('New', 'Open', 'Waiting on contact', 'Waiting on Us', 'Closed'))"
         },
         "priority": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        },
-        "owner_user_id": {
-          "type": "bigint",
-          "nullable": true,
-          "default": null
+          "type": "TEXT", 
+          "constraint": "CHECK (priority IN ('Low', 'Medium', 'High'))"
         },
         "source": {
-          "type": "text",
-          "nullable": true,
-          "default": null
+          "type": "TEXT", 
+          "constraint": "CHECK (source IN ('Email', 'Phone', 'Web form'))"
         },
+        "ticket_owner": {"type": "TEXT", "description": "email in the domain of the company that owns the system"},
+        "activity_date": {"type": "TEXT", "format": "dd/mm/yyyy hh:mm"},
+        "contact_email": {"type": "TEXT", "constraint": "FK → contacts.contact_email"},
+        "company_domain": {"type": "TEXT", "constraint": "FK → companies.company_domain"},
         "issue_of_interest": {
-          "type": "text",
-          "nullable": true,
-          "default": null
+          "type": "TEXT", 
+          "constraint": "CHECK (issue_of_interest IN ('Crumb tray', 'Overheating', 'Wi‑Fi setup', 'Shipping delay', 'Thermostat', 'Packaging', 'Noise', 'Invoice'))"
         },
-        "issued_ticket_before": {
-          "type": "boolean",
-          "nullable": true,
-          "default": null
+        "issued_before": {
+          "type": "TEXT", 
+          "constraint": "CHECK (issued_before IN ('Yes', 'No'))"
         },
-        "name_embedding": {
-          "type": "USER-DEFINED",
-          "nullable": true,
-          "default": null
-        },
-        "issue_embedding": {
-          "type": "USER-DEFINED",
-          "nullable": true,
-          "default": null
-        }
-      },
-      "primary_keys": [
-        "ticket_id"
-      ],
-      "foreign_keys": {
-        "owner_user_id": {
-          "references_table": "users",
-          "references_column": "user_id"
-        }
+        "description": {"type": "TEXT", "purpose": "ticket notes and/or associated emails"},
+        "name_embedding": {"type": "VECTOR(768)", "purpose": "semantic search"},
+        "issue_embedding": {"type": "VECTOR(768)", "purpose": "semantic search"}
+      }
+    },
+    "products": {
+      "description": "Product catalog information",
+      "columns": {
+        "product_id": {"type": "BIGSERIAL", "constraint": "PRIMARY KEY"},
+        "name": {"type": "TEXT", "constraint": "NOT NULL UNIQUE"},
+        "description": {"type": "TEXT"},
+        "price": {"type": "NUMERIC(18,2)"},
+        "cost_of_goods_sold": {"type": "NUMERIC(18,2)"},
+        "description_embedding": {"type": "VECTOR(768)", "purpose": "semantic search"}
       }
     },
     "users": {
+      "description": "System users and owners",
       "columns": {
-        "user_id": {
-          "type": "bigint",
-          "nullable": false,
-          "default": null
-        },
-        "email": {
-          "type": "text",
-          "nullable": false,
-          "default": null
-        },
-        "full_name": {
-          "type": "text",
-          "nullable": true,
-          "default": null
-        }
-      },
-      "primary_keys": [
-        "user_id"
-      ],
-      "foreign_keys": {}
+        "user_id": {"type": "BIGSERIAL", "constraint": "PRIMARY KEY"},
+        "email": {"type": "TEXT", "constraint": "NOT NULL UNIQUE"},
+        "full_name": {"type": "TEXT"}
+      }
+    },
+    "tasks": {
+      "description": "Task management and assignments",
+      "columns": {
+        "task_id": {"type": "BIGSERIAL", "constraint": "PRIMARY KEY"},
+        "due_at": {"type": "TIMESTAMPTZ"},
+        "title": {"type": "TEXT", "constraint": "NOT NULL"},
+        "notes": {"type": "TEXT"},
+        "priority": {"type": "TEXT"},
+        "status": {"type": "TEXT"},
+        "task_type": {"type": "TEXT"},
+        "queue": {"type": "TEXT"},
+        "assigned_to_user_id": {"type": "BIGINT", "constraint": "FK → users.user_id"},
+        "deal_id": {"type": "TEXT", "constraint": "FK → deals.deal_id"},
+        "title_embedding": {"type": "VECTOR(768)", "purpose": "semantic search"},
+        "notes_embedding": {"type": "VECTOR(768)", "purpose": "semantic search"}
+      }
+    },
+    "calls": {
+      "description": "Call records and communications",
+      "columns": {
+        "call_id": {"type": "BIGSERIAL", "constraint": "PRIMARY KEY"},
+        "notes": {"type": "TEXT"},
+        "direction": {"type": "TEXT", "values": ["Inbound", "Outbound"]},
+        "status": {"type": "TEXT", "values": ["Completed", "Busy", "etc"]},
+        "title": {"type": "TEXT"},
+        "activity_at": {"type": "TIMESTAMPTZ"},
+        "assigned_to_user_id": {"type": "BIGINT", "constraint": "FK → users.user_id"},
+        "duration_ms": {"type": "BIGINT"},
+        "outcome": {"type": "TEXT", "values": ["Connected", "Left voicemail", "etc"]},
+        "source": {"type": "TEXT", "values": ["VoIP", "Zoom", "etc"]},
+        "from_number": {"type": "TEXT"},
+        "to_number": {"type": "TEXT"},
+        "recording_url": {"type": "TEXT"},
+        "transcript_available": {"type": "BOOLEAN"},
+        "call_meeting_type": {"type": "TEXT"},
+        "notes_embedding": {"type": "VECTOR(768)", "purpose": "conversational context search"}
+      }
+    },
+    "emails": {
+      "description": "Email communications",
+      "columns": {
+        "email_id": {"type": "BIGSERIAL", "constraint": "PRIMARY KEY"},
+        "contact_email": {"type": "TEXT", "constraint": "FK → contacts.contact_email"},
+        "subject": {"type": "TEXT"},
+        "send_status": {"type": "TEXT", "values": ["Sent", "Scheduled", "etc"]},
+        "body": {"type": "TEXT"},
+        "direction": {"type": "TEXT", "values": ["Incoming", "Outgoing"]},
+        "subject_embedding": {"type": "VECTOR(768)", "purpose": "semantic search"},
+        "body_embedding": {"type": "VECTOR(768)", "purpose": "semantic search"}
+      }
+    },
+    "notes": {
+      "description": "General notes and documentation",
+      "columns": {
+        "note_id": {"type": "BIGSERIAL", "constraint": "PRIMARY KEY"},
+        "body": {"type": "TEXT", "constraint": "NOT NULL"},
+        "activity_date": {"type": "DATE"},
+        "activity_assigned_to_user_id": {"type": "BIGINT", "constraint": "FK → users.user_id"},
+        "company_domain": {"type": "TEXT", "constraint": "FK → companies.company_domain"},
+        "ticket_id": {"type": "TEXT", "constraint": "FK → tickets.ticket_id"},
+        "deal_id": {"type": "TEXT", "constraint": "FK → deals.deal_id"},
+        "contact_email": {"type": "TEXT", "constraint": "FK → contacts.contact_email"},
+        "body_embedding": {"type": "VECTOR(768)", "purpose": "long-form context search"}
+      }
+    },
+    "deal_line_items": {
+      "description": "Line items within deals",
+      "columns": {
+        "line_item_id": {"type": "BIGSERIAL", "constraint": "PRIMARY KEY"},
+        "deal_id": {"type": "TEXT", "constraint": "FK → deals.deal_id ON DELETE CASCADE"},
+        "product_id": {"type": "BIGINT", "constraint": "FK → products(product_id)"},
+        "name": {"type": "TEXT"},
+        "quantity": {"type": "INTEGER", "constraint": "NOT NULL DEFAULT 1"},
+        "unit_price": {"type": "NUMERIC(18,2)"}
+      }
     }
   },
-  "relationships": {
-    "call_contacts": {
-      "referenced_by": [],
-      "references": [
-        "call_id",
-        "contact_id"
-      ]
-    },
-    "calls": {
-      "referenced_by": [
-        "call_contacts.call_id"
-      ],
-      "references": [
-        "assigned_to_user_id"
-      ]
-    },
-    "companies": {
-      "referenced_by": [
-        "company_company_associations.company_id",
-        "company_company_associations.associated_company_id",
-        "company_contact_associations.company_id",
-        "deal_company_associations.company_id",
-        "notes.company_id"
-      ],
-      "references": []
-    },
-    "company_company_associations": {
-      "referenced_by": [],
-      "references": [
-        "company_id",
-        "associated_company_id"
-      ]
-    },
+  "associations": {
     "company_contact_associations": {
-      "referenced_by": [],
-      "references": [
-        "company_id",
-        "contact_id"
-      ]
-    },
-    "contact_contact_associations": {
-      "referenced_by": [],
-      "references": [
-        "contact_id",
-        "associated_contact_id"
-      ]
-    },
-    "contacts": {
-      "referenced_by": [
-        "call_contacts.contact_id",
-        "company_contact_associations.contact_id",
-        "contact_contact_associations.contact_id",
-        "contact_contact_associations.associated_contact_id",
-        "emails.contact_id",
-        "notes.contact_id"
-      ],
-      "references": []
+      "description": "Many-to-many company-contact relationships",
+      "columns": {
+        "company_domain": {"type": "TEXT", "constraint": "FK → companies.company_domain ON DELETE CASCADE"},
+        "contact_email": {"type": "TEXT", "constraint": "FK → contacts.contact_email ON DELETE CASCADE"},
+        "label": {"type": "TEXT", "default": "''"}
+      },
+      "primary_key": ["company_domain", "contact_email", "label"]
     },
     "deal_company_associations": {
-      "referenced_by": [],
-      "references": [
-        "deal_id",
-        "company_id"
-      ]
+      "description": "Many-to-many deal-company relationships",
+      "columns": {
+        "deal_id": {"type": "TEXT", "constraint": "FK → deals.deal_id ON DELETE CASCADE"},
+        "company_domain": {"type": "TEXT", "constraint": "FK → companies.company_domain ON DELETE CASCADE"},
+        "label": {"type": "TEXT", "default": "''"}
+      },
+      "primary_key": ["deal_id", "company_domain", "label"]
     },
-    "deal_line_items": {
-      "referenced_by": [],
-      "references": [
-        "deal_id",
-        "product_id"
-      ]
+    "contact_contact_associations": {
+      "description": "Many-to-many contact-contact relationships",
+      "columns": {
+        "contact_email": {"type": "TEXT", "constraint": "FK → contacts.contact_email ON DELETE CASCADE"},
+        "associated_contact_email": {"type": "TEXT", "constraint": "FK → contacts.contact_email ON DELETE CASCADE"},
+        "label": {"type": "TEXT", "default": "''"}
+      },
+      "primary_key": ["contact_email", "associated_contact_email", "label"]
     },
-    "deals": {
-      "referenced_by": [
-        "deal_company_associations.deal_id",
-        "deal_line_items.deal_id",
-        "notes.deal_id",
-        "tasks.deal_id"
-      ],
-      "references": []
+    "company_company_associations": {
+      "description": "Many-to-many company-company relationships",
+      "columns": {
+        "company_domain": {"type": "TEXT", "constraint": "FK → companies.company_domain ON DELETE CASCADE"},
+        "associated_company_domain": {"type": "TEXT", "constraint": "FK → companies.company_domain ON DELETE CASCADE"},
+        "label": {"type": "TEXT", "default": "''"}
+      },
+      "primary_key": ["company_domain", "associated_company_domain", "label"]
     },
-    "emails": {
-      "referenced_by": [],
-      "references": [
-        "contact_id"
-      ]
+    "call_contacts": {
+      "description": "Many-to-many call-contact relationships",
+      "columns": {
+        "call_id": {"type": "BIGINT", "constraint": "FK → calls.call_id ON DELETE CASCADE"},
+        "contact_email": {"type": "TEXT", "constraint": "FK → contacts.contact_email"}
+      },
+      "primary_key": ["call_id", "contact_email"]
+    }
+  },
+  "key_changes": {
+    "field_renames": {
+      "contacts.email": "contacts.contact_email",
+      "contacts.phone": "contacts.mobile_phone",
+      "companies.domain": "companies.company_domain",
+      "companies.phone_number": "companies.phone",
+      "deals.name": "deals.deal_name",
+      "deals.stage": "deals.deal_stage",
+      "tickets.name": "tickets.ticket_name",
+      "tickets.status": "tickets.ticket_status",
+      "tickets.owner_user_id": "tickets.ticket_owner"
     },
-    "notes": {
-      "referenced_by": [],
-      "references": [
-        "activity_assigned_to_user_id",
-        "company_id",
-        "ticket_id",
-        "deal_id",
-        "contact_id"
-      ]
+    "new_fields": {
+      "companies.industry": "Industry classification with constraints",
+      "companies.number_of_employees": "Employee count",
+      "deals.description": "Deal notes and associated emails",
+      "tickets.description": "Ticket notes and associated emails",
+      "tickets.issued_before": "Whether customer had previous tickets"
     },
-    "products": {
-      "referenced_by": [
-        "deal_line_items.product_id"
-      ],
-      "references": []
-    },
-    "tasks": {
-      "referenced_by": [],
-      "references": [
-        "assigned_to_user_id",
-        "deal_id"
-      ]
-    },
-    "tickets": {
-      "referenced_by": [
-        "notes.ticket_id"
-      ],
-      "references": [
-        "owner_user_id"
-      ]
-    },
-    "users": {
-      "referenced_by": [
-        "calls.assigned_to_user_id",
-        "notes.activity_assigned_to_user_id",
-        "tasks.assigned_to_user_id",
-        "tickets.owner_user_id"
-      ],
-      "references": []
+    "type_changes": {
+      "deals.deal_id": "BIGSERIAL → TEXT",
+      "tickets.ticket_id": "BIGSERIAL → TEXT",
+      "deals.close_date": "DATE → TEXT (dd/mm/yyyy hh:mm format)",
+      "tickets.activity_date": "New TEXT field (dd/mm/yyyy hh:mm format)"
+    }
+  },
+  "constraints": {
+    "enumerated_values": {
+      "industry": ["Retail", "Hospitality", "E-commerce", "Wholesale", "Manufacturing", "Distribution"],
+      "deal_stage": ["Appointment Scheduled", "Qualified to Buy", "Presentation Scheduled", "Closed Won", "Closed Lost"],
+      "product_of_interest": ["2-slice toaster", "4-slice toaster", "smart toaster", "crumb tray kit", "display stand"],
+      "ticket_status": ["New", "Open", "Waiting on contact", "Waiting on Us", "Closed"],
+      "priority": ["Low", "Medium", "High"],
+      "source": ["Email", "Phone", "Web form"],
+      "issue_of_interest": ["Crumb tray", "Overheating", "Wi‑Fi setup", "Shipping delay", "Thermostat", "Packaging", "Noise", "Invoice"],
+      "issued_before": ["Yes", "No"]
     }
   }
 }

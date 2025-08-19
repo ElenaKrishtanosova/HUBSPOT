@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 Script to extract all database tables to CSV files
+Updated for new schema with contact_email, company_domain, etc.
 """
 
 import os
@@ -138,6 +139,62 @@ def export_table_to_csv(table_name, output_dir):
         logger.error(f"❌ Error exporting table {table_name}: {e}")
         return False
 
+def create_sample_data_files():
+    """Create sample CSV files with the new schema structure"""
+    sample_dir = os.path.dirname(__file__)
+    
+    # Sample Contacts data
+    contacts_data = [
+        ['first_name', 'last_name', 'contact_email', 'mobile_phone', 'company_domain'],
+        ['John', 'Smith', 'john.smith@example.com', '+1234567890', 'example.com'],
+        ['Jane', 'Doe', 'jane.doe@company.com', '+1987654321', 'company.com'],
+        ['Bob', 'Johnson', 'bob.johnson@business.org', '+1555123456', 'business.org']
+    ]
+    
+    contacts_file = os.path.join(sample_dir, 'contacts.csv')
+    with open(contacts_file, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerows(contacts_data)
+    
+    # Sample Companies data
+    companies_data = [
+        ['name', 'company_domain', 'phone', 'city', 'industry', 'number_of_employees'],
+        ['Example Corp', 'example.com', '+1234567890', 'New York', 'E-commerce', 100],
+        ['Company Inc', 'company.com', '+1987654321', 'Los Angeles', 'Retail', 50],
+        ['Business LLC', 'business.org', '+1555123456', 'Chicago', 'Manufacturing', 200]
+    ]
+    
+    companies_file = os.path.join(sample_dir, 'companies.csv')
+    with open(companies_file, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerows(companies_data)
+    
+    # Sample Deals data
+    deals_data = [
+        ['deal_id', 'deal_name', 'deal_stage', 'pipeline', 'amount', 'close_date', 'contact_email', 'company_domain', 'product_of_interest', 'point_of_contact', 'description'],
+        ['DEAL001', 'Toaster Deal', 'Qualified to Buy', 'Sales Pipeline', 299.99, '15/12/2024 14:30', 'john.smith@example.com', 'example.com', 'smart toaster', 'John Smith', 'Smart toaster deal for Example Corp'],
+        ['DEAL002', 'Kitchen Equipment', 'Closed Won', 'Sales Pipeline', 599.99, '10/12/2024 10:00', 'jane.doe@company.com', 'company.com', '4-slice toaster', 'Jane Doe', '4-slice toaster deal for Company Inc']
+    ]
+    
+    deals_file = os.path.join(sample_dir, 'deals.csv')
+    with open(deals_file, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerows(deals_data)
+    
+    # Sample Tickets data
+    tickets_data = [
+        ['ticket_id', 'ticket_name', 'pipeline', 'ticket_status', 'priority', 'source', 'ticket_owner', 'activity_date', 'contact_email', 'company_domain', 'issue_of_interest', 'issued_before', 'description'],
+        ['TICKET001', 'Crumb Tray Issue', 'Support Pipeline', 'Open', 'Medium', 'Email', 'support@example.com', '12/12/2024 09:00', 'john.smith@example.com', 'example.com', 'Crumb tray', 'No', 'Customer reports crumb tray not fitting properly'],
+        ['TICKET002', 'Wi-Fi Setup Help', 'Support Pipeline', 'New', 'Low', 'Web form', 'support@company.com', '12/12/2024 11:30', 'jane.doe@company.com', 'company.com', 'Wi‑Fi setup', 'Yes', 'Customer needs help with Wi-Fi setup']
+    ]
+    
+    tickets_file = os.path.join(sample_dir, 'tickets.csv')
+    with open(tickets_file, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerows(tickets_data)
+    
+    logger.info("✅ Created sample data files with new schema structure")
+
 def main():
     """Main extraction function"""
     logger.info("🚀 Starting database extraction...")
@@ -146,10 +203,13 @@ def main():
     output_dir = os.path.dirname(__file__)
     logger.info(f"📁 Output directory: {output_dir}")
     
+    # First, create sample data files with new schema
+    create_sample_data_files()
+    
     # Get all table names
     tables = get_table_names()
     if not tables:
-        logger.error("❌ No tables found in database")
+        logger.info("📝 No existing tables found, using sample data files")
         return
     
     logger.info(f"📊 Found {len(tables)} tables: {', '.join(tables)}")

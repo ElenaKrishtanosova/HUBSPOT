@@ -13,21 +13,23 @@ CREATE TABLE users (
 CREATE TABLE companies (
 	company_id BIGSERIAL PRIMARY KEY,
 	name TEXT NOT NULL,
-	domain TEXT UNIQUE,
-	phone_number TEXT,
+	company_domain TEXT UNIQUE,
+	phone TEXT,
 	city TEXT,
+	industry TEXT CHECK (industry IN ('Retail', 'Hospitality', 'E-commerce', 'Wholesale', 'Manufacturing', 'Distribution')),
+	number_of_employees INTEGER,
 	-- semantic search (company naming, fuzzy matching, dedupe)
 	name_embedding VECTOR(768)
 );
 
 CREATE TABLE contacts (
 	contact_id BIGSERIAL PRIMARY KEY,
-	external_id BIGINT UNIQUE, -- "Record ID - Contacts" when present
 	first_name TEXT,
 	last_name TEXT,
-	email TEXT UNIQUE,
-	phone TEXT,
-	-- for fuzzy person lookup (e.g., “Jon Smyth from Dragonfly”)
+	contact_email TEXT UNIQUE,
+	mobile_phone TEXT,
+	company_domain TEXT REFERENCES companies(company_domain),
+	-- for fuzzy person lookup (e.g., "Jon Smyth from Dragonfly")
 	name_embedding VECTOR(768)
 );
 
@@ -43,22 +45,24 @@ CREATE TABLE products (
 );
 
 CREATE TABLE deals (
-	deal_id BIGSERIAL PRIMARY KEY,
-	external_id BIGINT UNIQUE, -- "Deal ID" / "Deal Unique Value (RecordID)"
-	name TEXT NOT NULL,
+	deal_id TEXT PRIMARY KEY,
+	deal_name TEXT NOT NULL,
+	deal_stage TEXT CHECK (deal_stage IN ('Appointment Scheduled', 'Qualified to Buy', 'Presentation Scheduled', 'Closed Won', 'Closed Lost')),
 	pipeline TEXT,
-	stage TEXT,
 	amount NUMERIC(18,2),
-	close_date DATE,
-	product_of_interest TEXT,
-	point_of_contact_name TEXT,
+	close_date TEXT, -- format: dd/mm/yyyy hh:mm
+	contact_email TEXT REFERENCES contacts(contact_email),
+	company_domain TEXT REFERENCES companies(company_domain),
+	product_of_interest TEXT CHECK (product_of_interest IN ('2-slice toaster', '4-slice toaster', 'smart toaster', 'crumb tray kit', 'display stand')),
+	point_of_contact TEXT,
+	description TEXT, -- consistent with product_of_interest - deal notes or associate emails
 	-- semantic search on how the deal is described/named
 	name_embedding VECTOR(768)
 );
 
 CREATE TABLE deal_line_items (
 	line_item_id BIGSERIAL PRIMARY KEY,
-	deal_id BIGINT NOT NULL REFERENCES deals(deal_id) ON DELETE CASCADE,
+	deal_id TEXT NOT NULL REFERENCES deals(deal_id) ON DELETE CASCADE,
 	product_id BIGINT REFERENCES products(product_id),
 	name TEXT,
 	quantity INTEGER NOT NULL DEFAULT 1,
@@ -66,15 +70,19 @@ CREATE TABLE deal_line_items (
 );
 
 CREATE TABLE tickets (
-	ticket_id BIGSERIAL PRIMARY KEY,
-	name TEXT NOT NULL,
-	pipeline TEXT,
-	status TEXT,
-	priority TEXT,
-	owner_user_id BIGINT REFERENCES users(user_id),
-	source TEXT,
-	issue_of_interest TEXT,
-	issued_ticket_before BOOLEAN,
+	ticket_id TEXT PRIMARY KEY,
+	ticket_name TEXT NOT NULL,
+	pipeline TEXT DEFAULT 'Support Pipeline',
+	ticket_status TEXT CHECK (ticket_status IN ('New', 'Open', 'Waiting on contact', 'Waiting on Us', 'Closed')),
+	priority TEXT CHECK (priority IN ('Low', 'Medium', 'High')),
+	source TEXT CHECK (source IN ('Email', 'Phone', 'Web form')),
+	ticket_owner TEXT, -- email in the domain of the company that owns the system
+	activity_date TEXT, -- format: dd/mm/yyyy hh:mm
+	contact_email TEXT REFERENCES contacts(contact_email),
+	company_domain TEXT REFERENCES companies(company_domain),
+	issue_of_interest TEXT CHECK (issue_of_interest IN ('Crumb tray', 'Overheating', 'Wi‑Fi setup', 'Shipping delay', 'Thermostat', 'Packaging', 'Noise', 'Invoice')),
+	issued_before TEXT CHECK (issued_before IN ('Yes', 'No')),
+	description TEXT, -- consistent with issue_of_interest - ticket notes and/or associated emails
 	-- search on summarized issue/title for support workflows
 	name_embedding VECTOR(768),
 	issue_embedding VECTOR(768)
@@ -92,7 +100,7 @@ CREATE TABLE tasks (
 	task_type TEXT,
 	queue TEXT,
 	assigned_to_user_id BIGINT REFERENCES users(user_id),
-	deal_id BIGINT REFERENCES deals(deal_id),
+	deal_id TEXT REFERENCES deals(deal_id),
 	-- task intent and content search
 	title_embedding VECTOR(768),
 	notes_embedding VECTOR(768)
@@ -120,7 +128,7 @@ CREATE TABLE calls (
 
 CREATE TABLE emails (
 	email_id BIGSERIAL PRIMARY KEY,
-	contact_id BIGINT REFERENCES contacts(contact_id),
+	contact_email TEXT REFERENCES contacts(contact_email),
 	subject TEXT,
 	send_status TEXT,           -- Sent/Scheduled/etc.
 	body TEXT,
@@ -135,10 +143,10 @@ CREATE TABLE notes (
 	body TEXT NOT NULL,
 	activity_date DATE,
 	activity_assigned_to_user_id BIGINT REFERENCES users(user_id),
-	company_id BIGINT REFERENCES companies(company_id),
-	ticket_id BIGINT REFERENCES tickets(ticket_id),
-	deal_id BIGINT REFERENCES deals(deal_id),
-	contact_id BIGINT REFERENCES contacts(contact_id),
+	company_domain TEXT REFERENCES companies(company_domain),
+	ticket_id TEXT REFERENCES tickets(ticket_id),
+	deal_id TEXT REFERENCES deals(deal_id),
+	contact_email TEXT REFERENCES contacts(contact_email),
 	-- long-form context used by reps
 	body_embedding VECTOR(768)
 );
@@ -146,43 +154,43 @@ CREATE TABLE notes (
 -- Associations (many-to-many, with labels)
 
 CREATE TABLE company_contact_associations (
-	company_id BIGINT NOT NULL REFERENCES companies(company_id) ON DELETE CASCADE,
-	contact_id BIGINT NOT NULL REFERENCES contacts(contact_id) ON DELETE CASCADE,
+	company_domain TEXT NOT NULL REFERENCES companies(company_domain) ON DELETE CASCADE,
+	contact_email TEXT NOT NULL REFERENCES contacts(contact_email) ON DELETE CASCADE,
 	label TEXT DEFAULT '',
-	PRIMARY KEY (company_id, contact_id, label)
+	PRIMARY KEY (company_domain, contact_email, label)
 );
 
 CREATE TABLE deal_company_associations (
-	deal_id BIGINT NOT NULL REFERENCES deals(deal_id) ON DELETE CASCADE,
-	company_id BIGINT NOT NULL REFERENCES companies(company_id) ON DELETE CASCADE,
+	deal_id TEXT NOT NULL REFERENCES deals(deal_id) ON DELETE CASCADE,
+	company_domain TEXT NOT NULL REFERENCES companies(company_domain) ON DELETE CASCADE,
 	label TEXT DEFAULT '',
-	PRIMARY KEY (deal_id, company_id, label)
+	PRIMARY KEY (deal_id, company_domain, label)
 );
 
 CREATE TABLE contact_contact_associations (
-	contact_id BIGINT NOT NULL REFERENCES contacts(contact_id) ON DELETE CASCADE,
-	associated_contact_id BIGINT NOT NULL REFERENCES contacts(contact_id) ON DELETE CASCADE,
+	contact_email TEXT NOT NULL REFERENCES contacts(contact_email) ON DELETE CASCADE,
+	associated_contact_email TEXT NOT NULL REFERENCES contacts(contact_email) ON DELETE CASCADE,
 	label TEXT DEFAULT '',
-	PRIMARY KEY (contact_id, associated_contact_id, label)
+	PRIMARY KEY (contact_email, associated_contact_email, label)
 );
 
 CREATE TABLE company_company_associations (
-	company_id BIGINT NOT NULL REFERENCES companies(company_id) ON DELETE CASCADE,
-	associated_company_id BIGINT NOT NULL REFERENCES companies(company_id) ON DELETE CASCADE,
+	company_domain TEXT NOT NULL REFERENCES companies(company_domain) ON DELETE CASCADE,
+	associated_company_domain TEXT NOT NULL REFERENCES companies(company_domain) ON DELETE CASCADE,
 	label TEXT DEFAULT '',
-	PRIMARY KEY (company_id, associated_company_id, label)
+	PRIMARY KEY (company_domain, associated_company_domain, label)
 );
 
 -- Calls can be linked to one or more contacts (from "Calls and contacts ...")
 CREATE TABLE call_contacts (
 	call_id BIGINT NOT NULL REFERENCES calls(call_id) ON DELETE CASCADE,
-	contact_id BIGINT NOT NULL REFERENCES contacts(contact_id) ON DELETE CASCADE,
-	PRIMARY KEY (call_id, contact_id)
+	contact_email TEXT NOT NULL REFERENCES contacts(contact_email),
+	PRIMARY KEY (call_id, contact_email)
 );
 
 -- Helpful uniqueness/lookup indexes
-CREATE UNIQUE INDEX IF NOT EXISTS idx_companies_domain ON companies(domain);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_contacts_email ON contacts(email);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_companies_domain ON companies(company_domain);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_contacts_email ON contacts(contact_email);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_products_name ON products(name);
 
 -- ANN indexes for vector search (tune lists based on data size)

@@ -112,9 +112,11 @@ def create_schema():
             CREATE TABLE IF NOT EXISTS companies (
                 company_id BIGSERIAL PRIMARY KEY,
                 name TEXT NOT NULL,
-                domain TEXT UNIQUE,
-                phone_number TEXT,
+                company_domain TEXT UNIQUE,
+                phone TEXT,
                 city TEXT,
+                industry TEXT CHECK (industry IN ('Retail', 'Hospitality', 'E-commerce', 'Wholesale', 'Manufacturing', 'Distribution')),
+                number_of_employees INTEGER,
                 name_embedding vector({vector_dim})
             );
         """)
@@ -123,11 +125,11 @@ def create_schema():
         cursor.execute(f"""
             CREATE TABLE IF NOT EXISTS contacts (
                 contact_id BIGSERIAL PRIMARY KEY,
-                external_id BIGINT UNIQUE,
                 first_name TEXT,
                 last_name TEXT,
-                email TEXT UNIQUE,
-                phone TEXT,
+                contact_email TEXT UNIQUE,
+                mobile_phone TEXT,
+                company_domain TEXT REFERENCES companies(company_domain),
                 name_embedding vector({vector_dim})
             );
         """)
@@ -148,15 +150,17 @@ def create_schema():
         # Create deals table
         cursor.execute(f"""
             CREATE TABLE IF NOT EXISTS deals (
-                deal_id BIGSERIAL PRIMARY KEY,
-                external_id BIGINT UNIQUE,
-                name TEXT NOT NULL,
+                deal_id TEXT PRIMARY KEY,
+                deal_name TEXT NOT NULL,
+                deal_stage TEXT CHECK (deal_stage IN ('Appointment Scheduled', 'Qualified to Buy', 'Presentation Scheduled', 'Closed Won', 'Closed Lost')),
                 pipeline TEXT,
-                stage TEXT,
                 amount NUMERIC(18,2),
-                close_date DATE,
-                product_of_interest TEXT,
-                point_of_contact_name TEXT,
+                close_date TEXT,
+                contact_email TEXT REFERENCES contacts(contact_email),
+                company_domain TEXT REFERENCES companies(company_domain),
+                product_of_interest TEXT CHECK (product_of_interest IN ('2-slice toaster', '4-slice toaster', 'smart toaster', 'crumb tray kit', 'display stand')),
+                point_of_contact TEXT,
+                description TEXT,
                 name_embedding vector({vector_dim})
             );
         """)
@@ -165,7 +169,7 @@ def create_schema():
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS deal_line_items (
                 line_item_id BIGSERIAL PRIMARY KEY,
-                deal_id BIGINT NOT NULL REFERENCES deals(deal_id) ON DELETE CASCADE,
+                deal_id TEXT NOT NULL REFERENCES deals(deal_id) ON DELETE CASCADE,
                 product_id BIGINT REFERENCES products(product_id),
                 name TEXT,
                 quantity INTEGER NOT NULL DEFAULT 1,
@@ -176,15 +180,19 @@ def create_schema():
         # Create tickets table
         cursor.execute(f"""
             CREATE TABLE IF NOT EXISTS tickets (
-                ticket_id BIGSERIAL PRIMARY KEY,
-                name TEXT NOT NULL,
-                pipeline TEXT,
-                status TEXT,
-                priority TEXT,
-                owner_user_id BIGINT REFERENCES users(user_id),
-                source TEXT,
-                issue_of_interest TEXT,
-                issued_ticket_before BOOLEAN,
+                ticket_id TEXT PRIMARY KEY,
+                ticket_name TEXT NOT NULL,
+                pipeline TEXT DEFAULT 'Support Pipeline',
+                ticket_status TEXT CHECK (ticket_status IN ('New', 'Open', 'Waiting on contact', 'Waiting on Us', 'Closed')),
+                priority TEXT CHECK (priority IN ('Low', 'Medium', 'High')),
+                source TEXT CHECK (source IN ('Email', 'Phone', 'Web form')),
+                ticket_owner TEXT,
+                activity_date TEXT,
+                contact_email TEXT REFERENCES contacts(contact_email),
+                company_domain TEXT REFERENCES companies(company_domain),
+                issue_of_interest TEXT CHECK (issue_of_interest IN ('Crumb tray', 'Overheating', 'Wi‑Fi setup', 'Shipping delay', 'Thermostat', 'Packaging', 'Noise', 'Invoice')),
+                issued_before TEXT CHECK (issued_before IN ('Yes', 'No')),
+                description TEXT,
                 name_embedding vector({vector_dim}),
                 issue_embedding vector({vector_dim})
             );
@@ -202,7 +210,7 @@ def create_schema():
                 task_type TEXT,
                 queue TEXT,
                 assigned_to_user_id BIGINT REFERENCES users(user_id),
-                deal_id BIGINT REFERENCES deals(deal_id),
+                deal_id TEXT REFERENCES deals(deal_id),
                 title_embedding vector({vector_dim}),
                 notes_embedding vector({vector_dim})
             );
@@ -234,7 +242,7 @@ def create_schema():
         cursor.execute(f"""
             CREATE TABLE IF NOT EXISTS emails (
                 email_id BIGSERIAL PRIMARY KEY,
-                contact_id BIGINT REFERENCES contacts(contact_id),
+                contact_email TEXT REFERENCES contacts(contact_email),
                 subject TEXT,
                 send_status TEXT,
                 body TEXT,
@@ -251,10 +259,10 @@ def create_schema():
                 body TEXT NOT NULL,
                 activity_date DATE,
                 activity_assigned_to_user_id BIGINT REFERENCES users(user_id),
-                company_id BIGINT REFERENCES companies(company_id),
-                ticket_id BIGINT REFERENCES tickets(ticket_id),
-                deal_id BIGINT REFERENCES deals(deal_id),
-                contact_id BIGINT REFERENCES contacts(contact_id),
+                company_domain TEXT REFERENCES companies(company_domain),
+                ticket_id TEXT REFERENCES tickets(ticket_id),
+                deal_id TEXT REFERENCES deals(deal_id),
+                contact_email TEXT REFERENCES contacts(contact_email),
                 body_embedding vector({vector_dim})
             );
         """)
@@ -262,45 +270,45 @@ def create_schema():
         # Create association tables
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS company_contact_associations (
-                company_id BIGINT NOT NULL REFERENCES companies(company_id) ON DELETE CASCADE,
-                contact_id BIGINT NOT NULL REFERENCES contacts(contact_id) ON DELETE CASCADE,
+                company_domain TEXT NOT NULL REFERENCES companies(company_domain) ON DELETE CASCADE,
+                contact_email TEXT NOT NULL REFERENCES contacts(contact_email) ON DELETE CASCADE,
                 label TEXT DEFAULT '',
-                PRIMARY KEY (company_id, contact_id, label)
+                PRIMARY KEY (company_domain, contact_email, label)
             );
         """)
         
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS deal_company_associations (
-                deal_id BIGINT NOT NULL REFERENCES deals(deal_id) ON DELETE CASCADE,
-                company_id BIGINT NOT NULL REFERENCES companies(company_id) ON DELETE CASCADE,
+                deal_id TEXT NOT NULL REFERENCES deals(deal_id) ON DELETE CASCADE,
+                company_domain TEXT NOT NULL REFERENCES companies(company_domain) ON DELETE CASCADE,
                 label TEXT DEFAULT '',
-                PRIMARY KEY (deal_id, company_id, label)
+                PRIMARY KEY (deal_id, company_domain, label)
             );
         """)
         
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS contact_contact_associations (
-                contact_id BIGINT NOT NULL REFERENCES contacts(contact_id) ON DELETE CASCADE,
-                associated_contact_id BIGINT NOT NULL REFERENCES contacts(contact_id) ON DELETE CASCADE,
+                contact_email TEXT NOT NULL REFERENCES contacts(contact_email) ON DELETE CASCADE,
+                associated_contact_email TEXT NOT NULL REFERENCES contacts(contact_email) ON DELETE CASCADE,
                 label TEXT DEFAULT '',
-                PRIMARY KEY (contact_id, associated_contact_id, label)
+                PRIMARY KEY (contact_email, associated_contact_email, label)
             );
         """)
         
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS company_company_associations (
-                company_id BIGINT NOT NULL REFERENCES companies(company_id) ON DELETE CASCADE,
-                associated_company_id BIGINT NOT NULL REFERENCES companies(company_id) ON DELETE CASCADE,
+                company_domain TEXT NOT NULL REFERENCES companies(company_domain) ON DELETE CASCADE,
+                associated_company_domain TEXT NOT NULL REFERENCES companies(company_domain) ON DELETE CASCADE,
                 label TEXT DEFAULT '',
-                PRIMARY KEY (company_id, associated_company_id, label)
+                PRIMARY KEY (company_domain, associated_company_domain, label)
             );
         """)
         
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS call_contacts (
                 call_id BIGINT NOT NULL REFERENCES calls(call_id) ON DELETE CASCADE,
-                contact_id BIGINT NOT NULL REFERENCES contacts(contact_id) ON DELETE CASCADE,
-                PRIMARY KEY (call_id, contact_id)
+                contact_email TEXT NOT NULL REFERENCES contacts(contact_email),
+                PRIMARY KEY (call_id, contact_email)
             );
         """)
         
@@ -308,8 +316,8 @@ def create_schema():
         logger.info("Creating indexes...")
         
         # Unique indexes
-        cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_companies_domain ON companies(domain);")
-        cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_contacts_email ON contacts(email);")
+        cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_companies_domain ON companies(company_domain);")
+        cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_contacts_email ON contacts(contact_email);")
         cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_products_name ON products(name);")
         
         # Vector indexes using pgvector

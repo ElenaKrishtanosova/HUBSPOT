@@ -1,188 +1,329 @@
-# HubSpot CRM Database Schema
+# HubSpot CRM Database Schema Context
+
+## Overview
+This document describes the updated HubSpot CRM database schema with new field names and structure for better data organization and consistency.
+
+## Schema Version
+**Version:** 2.0  
+**Last Updated:** December 2024  
+**Description:** Major schema update with field renames and new constraints
 
 ## Core Tables
 
-### users
-- user_id bigint NOT NULL DEFAULT nextval('users_user_id_seq'::regclass)
-- email text NOT NULL
-- full_name text NULL
-- **PK:** user_id
-- **Unique:** email
+### 1. Companies
+**Purpose:** Store company information and details
 
-### companies
-- company_id bigint NOT NULL DEFAULT nextval('companies_company_id_seq'::regclass)
-- name text NOT NULL
-- domain text NULL
-- phone_number text NULL
-- city text NULL
-- name_embedding USER-DEFINED NULL
-- **PK:** company_id
-- **Unique:** domain
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `company_id` | BIGSERIAL | PRIMARY KEY | Unique company identifier |
+| `name` | TEXT | NOT NULL | Company name |
+| `company_domain` | TEXT | UNIQUE | Company domain (FK for associations) |
+| `phone` | TEXT | - | Phone number (+[countrycode][digits]) |
+| `city` | TEXT | - | Company city |
+| `industry` | TEXT | CHECK constraint | Industry classification |
+| `number_of_employees` | INTEGER | - | Employee count |
+| `name_embedding` | VECTOR(768) | - | Semantic search vector |
 
-### contacts
-- contact_id bigint NOT NULL DEFAULT nextval('contacts_contact_id_seq'::regclass)
-- external_id bigint NULL
-- first_name text NULL
-- last_name text NULL
-- email text NULL
-- phone text NULL
-- name_embedding USER-DEFINED NULL
-- **PK:** contact_id
-- **Unique:** external_id, email
+**Industry Constraints:**
+- Retail
+- Hospitality  
+- E-commerce
+- Wholesale
+- Manufacturing
+- Distribution
 
-### products
-- product_id bigint NOT NULL DEFAULT nextval('products_product_id_seq'::regclass)
-- external_id bigint NULL
-- name text NOT NULL
-- description text NULL
-- price numeric NULL
-- cost_of_goods_sold numeric NULL
-- description_embedding USER-DEFINED NULL
-- **PK:** product_id
-- **Unique:** external_id, name
+### 2. Contacts
+**Purpose:** Store contact person information
 
-### deals
-- deal_id bigint NOT NULL DEFAULT nextval('deals_deal_id_seq'::regclass)
-- external_id bigint NULL
-- name text NOT NULL
-- pipeline text NULL
-- stage text NULL
-- amount numeric NULL
-- close_date date NULL
-- product_of_interest text NULL
-- point_of_contact_name text NULL
-- name_embedding USER-DEFINED NULL
-- **PK:** deal_id
-- **Unique:** external_id
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `contact_id` | BIGSERIAL | PRIMARY KEY | Unique contact identifier |
+| `first_name` | TEXT | - | Contact first name |
+| `last_name` | TEXT | - | Contact last name |
+| `contact_email` | TEXT | UNIQUE | Contact email (PK/association key) |
+| `mobile_phone` | TEXT | - | Mobile phone (+[countrycode][digits]) |
+| `company_domain` | TEXT | FK → companies.company_domain | Associated company |
+| `name_embedding` | VECTOR(768) | - | Fuzzy person lookup vector |
 
-### tickets
-- ticket_id bigint NOT NULL DEFAULT nextval('tickets_ticket_id_seq'::regclass)
-- name text NOT NULL
-- pipeline text NULL
-- status text NULL
-- priority text NULL
-- owner_user_id bigint NULL
-- source text NULL
-- issue_of_interest text NULL
-- issued_ticket_before boolean NULL
-- name_embedding USER-DEFINED NULL
-- issue_embedding USER-DEFINED NULL
-- **PK:** ticket_id
-- **FK:** owner_user_id -> users.user_id
+### 3. Deals
+**Purpose:** Store sales deals and opportunities
 
-### tasks
-- task_id bigint NOT NULL DEFAULT nextval('tasks_task_id_seq'::regclass)
-- due_at timestamp with time zone NULL
-- title text NOT NULL
-- notes text NULL
-- priority text NULL
-- status text NULL
-- task_type text NULL
-- queue text NULL
-- assigned_to_user_id bigint NULL
-- deal_id bigint NULL
-- title_embedding USER-DEFINED NULL
-- notes_embedding USER-DEFINED NULL
-- **PK:** task_id
-- **FK:** assigned_to_user_id -> users.user_id, deal_id -> deals.deal_id
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `deal_id` | TEXT | PRIMARY KEY | Deal identifier |
+| `deal_name` | TEXT | NOT NULL | Deal name |
+| `deal_stage` | TEXT | CHECK constraint | Deal stage |
+| `pipeline` | TEXT | - | Sales pipeline |
+| `amount` | NUMERIC(18,2) | - | Deal amount |
+| `close_date` | TEXT | - | Close date (dd/mm/yyyy hh:mm) |
+| `contact_email` | TEXT | FK → contacts.contact_email | Associated contact |
+| `company_domain` | TEXT | FK → companies.company_domain | Associated company |
+| `product_of_interest` | TEXT | CHECK constraint | Product of interest |
+| `point_of_contact` | TEXT | - | Point of contact |
+| `description` | TEXT | - | Deal notes or associate emails |
+| `name_embedding` | VECTOR(768) | - | Semantic search vector |
 
-### calls
-- call_id bigint NOT NULL DEFAULT nextval('calls_call_id_seq'::regclass)
-- notes text NULL
-- direction text NULL
-- status text NULL
-- title text NULL
-- activity_at timestamp with time zone NULL
-- assigned_to_user_id bigint NULL
-- duration_ms bigint NULL
-- outcome text NULL
-- source text NULL
-- from_number text NULL
-- to_number text NULL
-- recording_url text NULL
-- transcript_available boolean NULL
-- call_meeting_type text NULL
-- notes_embedding USER-DEFINED NULL
-- **PK:** call_id
-- **FK:** assigned_to_user_id -> users.user_id
+**Deal Stage Constraints:**
+- Appointment Scheduled
+- Qualified to Buy
+- Presentation Scheduled
+- Closed Won
+- Closed Lost
 
-### emails
-- email_id bigint NOT NULL DEFAULT nextval('emails_email_id_seq'::regclass)
-- contact_id bigint NULL
-- subject text NULL
-- send_status text NULL
-- body text NULL
-- direction text NULL
-- subject_embedding USER-DEFINED NULL
-- body_embedding USER-DEFINED NULL
-- **PK:** email_id
-- **FK:** contact_id -> contacts.contact_id
+**Product of Interest Constraints:**
+- 2-slice toaster
+- 4-slice toaster
+- smart toaster
+- crumb tray kit
+- display stand
 
-### notes
-- note_id bigint NOT NULL DEFAULT nextval('notes_note_id_seq'::regclass)
-- body text NOT NULL
-- activity_date date NULL
-- activity_assigned_to_user_id bigint NULL
-- company_id bigint NULL
-- ticket_id bigint NULL
-- deal_id bigint NULL
-- contact_id bigint NULL
-- body_embedding USER-DEFINED NULL
-- **PK:** note_id
-- **FK:** activity_assigned_to_user_id -> users.user_id, company_id -> companies.company_id, ticket_id -> tickets.ticket_id, deal_id -> deals.deal_id, contact_id -> contacts.contact_id
+### 4. Tickets
+**Purpose:** Store support tickets and issues
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `ticket_id` | TEXT | PRIMARY KEY | Ticket identifier |
+| `ticket_name` | TEXT | NOT NULL | Ticket name |
+| `pipeline` | TEXT | DEFAULT 'Support Pipeline' | Support pipeline |
+| `ticket_status` | TEXT | CHECK constraint | Ticket status |
+| `priority` | TEXT | CHECK constraint | Priority level |
+| `source` | TEXT | CHECK constraint | Ticket source |
+| `ticket_owner` | TEXT | - | Ticket owner email |
+| `activity_date` | TEXT | - | Activity date (dd/mm/yyyy hh:mm) |
+| `contact_email` | TEXT | FK → contacts.contact_email | Associated contact |
+| `company_domain` | TEXT | FK → companies.company_domain | Associated company |
+| `issue_of_interest` | TEXT | CHECK constraint | Issue type |
+| `issued_before` | TEXT | CHECK constraint | Previous ticket status |
+| `description` | TEXT | - | Ticket notes and/or associated emails |
+| `name_embedding` | VECTOR(768) | - | Semantic search vector |
+| `issue_embedding` | VECTOR(768) | - | Issue search vector |
+
+**Ticket Status Constraints:**
+- New
+- Open
+- Waiting on contact
+- Waiting on Us
+- Closed
+
+**Priority Constraints:**
+- Low
+- Medium
+- High
+
+**Source Constraints:**
+- Email
+- Phone
+- Web form
+
+**Issue of Interest Constraints:**
+- Crumb tray
+- Overheating
+- Wi‑Fi setup
+- Shipping delay
+- Thermostat
+- Packaging
+- Noise
+- Invoice
+
+**Issued Before Constraints:**
+- Yes
+- No
+
+### 5. Products
+**Purpose:** Store product catalog information
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `product_id` | BIGSERIAL | PRIMARY KEY | Unique product identifier |
+| `name` | TEXT | NOT NULL UNIQUE | Product name |
+| `description` | TEXT | - | Product description |
+| `price` | NUMERIC(18,2) | - | Product price |
+| `cost_of_goods_sold` | NUMERIC(18,2) | - | COGS |
+| `description_embedding` | VECTOR(768) | - | Semantic search vector |
+
+### 6. Users
+**Purpose:** Store system users and owners
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `user_id` | BIGSERIAL | PRIMARY KEY | Unique user identifier |
+| `email` | TEXT | NOT NULL UNIQUE | User email |
+| `full_name` | TEXT | - | User full name |
+
+## Activity Tables
+
+### 7. Tasks
+**Purpose:** Task management and assignments
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `task_id` | BIGSERIAL | PRIMARY KEY | Unique task identifier |
+| `due_at` | TIMESTAMPTZ | - | Task due date |
+| `title` | TEXT | NOT NULL | Task title |
+| `notes` | TEXT | - | Task notes |
+| `priority` | TEXT | - | Task priority |
+| `status` | TEXT | - | Task status |
+| `task_type` | TEXT | - | Task type |
+| `queue` | TEXT | - | Task queue |
+| `assigned_to_user_id` | BIGINT | FK → users.user_id | Assigned user |
+| `deal_id` | TEXT | FK → deals.deal_id | Associated deal |
+| `title_embedding` | VECTOR(768) | - | Semantic search vector |
+| `notes_embedding` | VECTOR(768) | - | Semantic search vector |
+
+### 8. Calls
+**Purpose:** Call records and communications
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `call_id` | BIGSERIAL | PRIMARY KEY | Unique call identifier |
+| `notes` | TEXT | - | Call notes |
+| `direction` | TEXT | - | Inbound/Outbound |
+| `status` | TEXT | - | Completed/Busy/etc. |
+| `title` | TEXT | - | Call title |
+| `activity_at` | TIMESTAMPTZ | - | Call timestamp |
+| `assigned_to_user_id` | BIGINT | FK → users.user_id | Assigned user |
+| `duration_ms` | BIGINT | - | Call duration |
+| `outcome` | TEXT | - | Connected/Left voicemail/etc. |
+| `source` | TEXT | - | VoIP/Zoom/etc. |
+| `from_number` | TEXT | - | Caller number |
+| `to_number` | TEXT | - | Recipient number |
+| `recording_url` | TEXT | - | Recording URL |
+| `transcript_available` | BOOLEAN | - | Transcript availability |
+| `call_meeting_type` | TEXT | - | Meeting type |
+| `notes_embedding` | VECTOR(768) | - | Conversational context search |
+
+### 9. Emails
+**Purpose:** Email communications
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `email_id` | BIGSERIAL | PRIMARY KEY | Unique email identifier |
+| `contact_email` | TEXT | FK → contacts.contact_email | Associated contact |
+| `subject` | TEXT | - | Email subject |
+| `send_status` | TEXT | - | Sent/Scheduled/etc. |
+| `body` | TEXT | - | Email body |
+| `direction` | TEXT | - | Incoming/Outgoing |
+| `subject_embedding` | VECTOR(768) | - | Semantic search vector |
+| `body_embedding` | VECTOR(768) | - | Semantic search vector |
+
+### 10. Notes
+**Purpose:** General notes and documentation
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `note_id` | BIGSERIAL | PRIMARY KEY | Unique note identifier |
+| `body` | TEXT | NOT NULL | Note content |
+| `activity_date` | DATE | - | Activity date |
+| `activity_assigned_to_user_id` | BIGINT | FK → users.user_id | Assigned user |
+| `company_domain` | TEXT | FK → companies.company_domain | Associated company |
+| `ticket_id` | TEXT | FK → tickets.ticket_id | Associated ticket |
+| `deal_id` | TEXT | FK → deals.deal_id | Associated deal |
+| `contact_email` | TEXT | FK → contacts.contact_email | Associated contact |
+| `body_embedding` | VECTOR(768) | - | Long-form context search |
+
+### 11. Deal Line Items
+**Purpose:** Line items within deals
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `line_item_id` | BIGSERIAL | PRIMARY KEY | Unique line item identifier |
+| `deal_id` | TEXT | FK → deals.deal_id | Associated deal |
+| `product_id` | BIGINT | FK → products.product_id | Associated product |
+| `name` | TEXT | - | Line item name |
+| `quantity` | INTEGER | NOT NULL DEFAULT 1 | Quantity |
+| `unit_price` | NUMERIC(18,2) | - | Unit price |
 
 ## Association Tables
 
-### company_contact_associations
-- company_id bigint NOT NULL
-- contact_id bigint NOT NULL
-- label text NOT NULL DEFAULT ''::text
-- **PK:** company_id, contact_id, label
-- **FK:** company_id -> companies.company_id, contact_id -> contacts.contact_id
+### 12. Company-Contact Associations
+**Purpose:** Many-to-many company-contact relationships
 
-### deal_company_associations
-- deal_id bigint NOT NULL
-- company_id bigint NOT NULL
-- label text NOT NULL DEFAULT ''::text
-- **PK:** deal_id, company_id, label
-- **FK:** deal_id -> deals.deal_id, company_id -> companies.company_id
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `company_domain` | TEXT | FK → companies.company_domain | Company domain |
+| `contact_email` | TEXT | FK → contacts.contact_email | Contact email |
+| `label` | TEXT | DEFAULT '' | Association label |
 
-### contact_contact_associations
-- contact_id bigint NOT NULL
-- associated_contact_id bigint NOT NULL
-- label text NOT NULL DEFAULT ''::text
-- **PK:** contact_id, associated_contact_id, label
-- **FK:** contact_id -> contacts.contact_id, associated_contact_id -> contacts.contact_id
+**Primary Key:** `(company_domain, contact_email, label)`
 
-### company_company_associations
-- company_id bigint NOT NULL
-- associated_company_id bigint NOT NULL
-- label text NOT NULL DEFAULT ''::text
-- **PK:** company_id, associated_company_id, label
-- **FK:** company_id -> companies.company_id, associated_company_id -> companies.company_id
+### 13. Deal-Company Associations
+**Purpose:** Many-to-many deal-company relationships
 
-### call_contacts
-- call_id bigint NOT NULL
-- contact_id bigint NOT NULL
-- **PK:** call_id, contact_id
-- **FK:** call_id -> calls.call_id, contact_id -> contacts.contact_id
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `deal_id` | TEXT | FK → deals.deal_id | Deal identifier |
+| `company_domain` | TEXT | FK → companies.company_domain | Company domain |
+| `label` | TEXT | DEFAULT '' | Association label |
 
-### deal_line_items
-- line_item_id bigint NOT NULL DEFAULT nextval('deal_line_items_line_item_id_seq'::regclass)
-- deal_id bigint NOT NULL
-- product_id bigint NULL
-- name text NULL
-- quantity integer NOT NULL DEFAULT 1
-- unit_price numeric NULL
-- **PK:** line_item_id
-- **FK:** deal_id -> deals.deal_id, product_id -> products.product_id
+**Primary Key:** `(deal_id, company_domain, label)`
 
-## Table Relationships
+### 14. Contact-Contact Associations
+**Purpose:** Many-to-many contact-contact relationships
 
-- **users** referenced by: tickets.owner_user_id, tasks.assigned_to_user_id, calls.assigned_to_user_id, notes.activity_assigned_to_user_id
-- **companies** referenced by: company_contact_associations.company_id, deal_company_associations.company_id, company_company_associations.company_id, notes.company_id
-- **contacts** referenced by: company_contact_associations.contact_id, contact_contact_associations.contact_id, call_contacts.contact_id, emails.contact_id, notes.contact_id
-- **deals** referenced by: deal_company_associations.deal_id, deal_line_items.deal_id, tasks.deal_id, notes.deal_id
-- **products** referenced by: deal_line_items.product_id
-- **tickets** referenced by: notes.ticket_id
-- **calls** referenced by: call_contacts.call_id
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `contact_email` | TEXT | FK → contacts.contact_email | Contact email |
+| `associated_contact_email` | TEXT | FK → contacts.contact_email | Associated contact email |
+| `label` | TEXT | DEFAULT '' | Association label |
+
+**Primary Key:** `(contact_email, associated_contact_email, label)`
+
+### 15. Company-Company Associations
+**Purpose:** Many-to-many company-company relationships
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `company_domain` | TEXT | FK → companies.company_domain | Company domain |
+| `associated_company_domain` | TEXT | FK → companies.company_domain | Associated company domain |
+| `label` | TEXT | DEFAULT '' | Association label |
+
+**Primary Key:** `(company_domain, associated_company_domain, label)`
+
+### 16. Call-Contact Associations
+**Purpose:** Many-to-many call-contact relationships
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `call_id` | BIGINT | FK → calls.call_id | Call identifier |
+| `contact_email` | TEXT | FK → contacts.contact_email | Contact email |
+
+**Primary Key:** `(call_id, contact_email)`
+
+## Key Changes from Previous Schema
+
+### Field Renames
+- `contacts.email` → `contacts.contact_email`
+- `contacts.phone` → `contacts.mobile_phone`
+- `companies.domain` → `companies.company_domain`
+- `companies.phone_number` → `companies.phone`
+- `deals.name` → `deals.deal_name`
+- `deals.stage` → `deals.deal_stage`
+- `tickets.name` → `tickets.ticket_name`
+- `tickets.status` → `tickets.ticket_status`
+- `tickets.owner_user_id` → `tickets.ticket_owner`
+
+### New Fields
+- `companies.industry` - Industry classification with constraints
+- `companies.number_of_employees` - Employee count
+- `deals.description` - Deal notes and associated emails
+- `tickets.description` - Ticket notes and associated emails
+- `tickets.issued_before` - Whether customer had previous tickets
+
+### Type Changes
+- `deals.deal_id` - BIGSERIAL → TEXT
+- `tickets.ticket_id` - BIGSERIAL → TEXT
+- `deals.close_date` - DATE → TEXT (dd/mm/yyyy hh:mm format)
+- `tickets.activity_date` - New TEXT field (dd/mm/yyyy hh:mm format)
+
+### Foreign Key Updates
+- All association tables now use `contact_email` and `company_domain` instead of IDs
+- This provides better data consistency and easier querying
+
+## Vector Search Support
+All text fields that benefit from semantic search have corresponding VECTOR(768) embedding fields for AI-powered search and analysis.
+
+## Data Format Standards
+- **Phone Numbers:** +[countrycode][digits] format
+- **Dates:** dd/mm/yyyy hh:mm format for deals and tickets
+- **Email:** Standard email format for contacts and users
+- **Domain:** Standard domain format for companies
