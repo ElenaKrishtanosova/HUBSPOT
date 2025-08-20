@@ -1,0 +1,6 @@
+deal_id,deal_name,deal_stage,amount,close_date
+DEAL000001,"""Everyday Toasty Deals""",Presentation Scheduled,1099.91,02/02/2024 00:00
+DEAL000005,"""Everyday Toasty Deals""",Qualified to Buy,4385.70,29/02/2024 00:00
+DEAL000010,Appliance Sale: Save on Toaster Essentials,Qualified to Buy,2722.21,08/05/2024 00:00
+DEAL000015,The Everyday Toasty Deal,Closed Lost,2081.70,17/06/2024 00:00
+DEAL000020,"""Everyday Toasty Deals""",Closed Won,1906.18,26/06/2024 00:00

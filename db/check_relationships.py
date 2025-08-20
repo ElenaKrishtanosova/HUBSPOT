@@ -285,6 +285,35 @@ def display_summary_table(df):
     }).round(2)
     print(industry_stats)
 
+def save_dataframe_to_csv(df, filename):
+    """Save DataFrame to CSV file in extractions folder"""
+    try:
+        # Create extractions directory path
+        extractions_dir = os.path.join(os.path.dirname(__file__), '..', 'extractions')
+        
+        # Ensure directory exists
+        os.makedirs(extractions_dir, exist_ok=True)
+        
+        # Full path for CSV file
+        csv_path = os.path.join(extractions_dir, filename)
+        
+        # Save DataFrame to CSV
+        df.to_csv(csv_path, index=False)
+        
+        print(f"\n💾 DataFrame saved to: {csv_path}")
+        print(f"📁 File size: {os.path.getsize(csv_path):,} bytes")
+        
+        return csv_path
+        
+    except Exception as e:
+        print(f"❌ Error saving CSV file: {e}")
+        return None
+
+def get_company_relationships_dataframe():
+    """Get company relationships data as DataFrame without printing"""
+    df = get_company_summary()
+    return df
+
 def main():
     """Main function"""
     print("🔍 HubSpot CRM Database Relationships Checker")
@@ -301,6 +330,35 @@ def main():
     # Display summary table
     display_summary_table(df)
     
+    # Save DataFrame to CSV
+    print("\n💾 Saving DataFrame to CSV...")
+    csv_path = save_dataframe_to_csv(df, 'company_relationships_summary.csv')
+    
+    if csv_path:
+        print(f"✅ CSV file saved successfully!")
+        
+        # Also save with totals row
+        totals_df = df.copy()
+        totals = {
+            'company_domain': 'TOTALS',
+            'company_name': '',
+            'industry': '',
+            'number_of_employees': totals_df['number_of_employees'].sum(),
+            'total_contacts': totals_df['total_contacts'].sum(),
+            'total_deals': totals_df['total_deals'].sum(),
+            'total_tickets': totals_df['total_tickets'].sum(),
+            'total_notes': totals_df['total_notes'].sum(),
+            'total_emails': totals_df['total_emails'].sum(),
+            'total_tasks': totals_df['total_tasks'].sum()
+        }
+        
+        totals_row_df = pd.DataFrame([totals])
+        totals_df = pd.concat([totals_df, totals_row_df], ignore_index=True)
+        
+        totals_csv_path = save_dataframe_to_csv(totals_df, 'company_relationships_with_totals.csv')
+        if totals_csv_path:
+            print(f"✅ Totals CSV file saved successfully!")
+    
     # Check relationship integrity
     print("\n🔍 Checking relationship integrity...")
     integrity_df = get_relationship_integrity()
@@ -310,6 +368,9 @@ def main():
         print("✅ RELATIONSHIP INTEGRITY CHECK")
         print("="*50)
         print(integrity_df.to_string(index=False))
+        
+        # Save integrity check to CSV
+        integrity_csv_path = save_dataframe_to_csv(integrity_df, 'relationship_integrity_check.csv')
         
         # Check if there are any issues
         total_orphaned = integrity_df['count'].sum()
@@ -332,14 +393,26 @@ def main():
             if not details['contacts'].empty:
                 print(f"\n👥 Sample Contacts ({len(details['contacts'])}):")
                 print(details['contacts'].to_string(index=False))
+                
+                # Save contacts sample to CSV
+                contacts_csv_path = save_dataframe_to_csv(details['contacts'], f'{first_company}_contacts_sample.csv')
             
             if not details['deals'].empty:
                 print(f"\n💼 Sample Deals ({len(details['deals'])}):")
                 print(details['deals'].to_string(index=False))
+                
+                # Save deals sample to CSV
+                deals_csv_path = save_dataframe_to_csv(details['deals'], f'{first_company}_deals_sample.csv')
             
             if not details['tickets'].empty:
                 print(f"\n🎫 Sample Tickets ({len(details['tickets'])}):")
                 print(details['tickets'].to_string(index=False))
+                
+                # Save tickets sample to CSV
+                tickets_csv_path = save_dataframe_to_csv(details['tickets'], f'{first_company}_tickets_sample.csv')
+    
+    # Return the main DataFrame for further use
+    return df
 
 if __name__ == "__main__":
     main() 

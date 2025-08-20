@@ -1,0 +1,6 @@
+ticket_id,ticket_name_short,ticket_status,priority,issue_of_interest
+TICKET000002,Had a routine check-in call with customer today to...,New,Low,Shipping delay
+TICKET000005,"During my recent interaction with Mr. Smith, we di...",Waiting on Us,High,Thermostat
+TICKET000039,"During a recent check-in call with the customer, t...",Waiting on contact,High,Noise
+TICKET000013,"During my recent check-in call with Mr. Smith, he ...",Open,Medium,Thermostat
+TICKET000019,I had a routine customer interaction today with Mr...,Waiting on Us,Medium,Wi‑Fi setup
