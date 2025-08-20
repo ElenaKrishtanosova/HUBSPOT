@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
-Database schema creation script for HubSpot CRM with pgvector support
+Database schema creation script for Simplified HubSpot CRM
+This schema includes only the tables and columns necessary to create a realistic mock dataset 
+for the purpose of generating and detecting business insights.
 """
 
 import os
@@ -75,8 +77,8 @@ def create_database():
         logger.error(f"Error creating database: {e}")
         sys.exit(1)
 
-def create_schema():
-    """Create the database schema with all tables"""
+def create_simplified_schema():
+    """Create the simplified database schema"""
     try:
         # Connect to the target database
         conn = psycopg2.connect(
@@ -88,274 +90,201 @@ def create_schema():
         )
         cursor = conn.cursor()
         
-        logger.info("Creating database schema...")
+        logger.info("Creating simplified database schema...")
         
-        # Enable pgvector extension
-        cursor.execute("CREATE EXTENSION IF NOT EXISTS vector;")
-        logger.info("pgvector extension enabled")
-        
-        # Get vector configuration
-        vector_dim = CONFIG['vector']['dimension']
-        index_lists = CONFIG['vector']['index_lists']
-        
-        # Create users table
+        # Drop existing tables if they exist (CASCADE will handle dependencies)
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS users (
+            DROP TABLE IF EXISTS 
+                deal_line_items, notes, calls, emails, tasks, tickets, deals, 
+                contacts, companies, users, products, company_contact_associations,
+                deal_company_associations CASCADE;
+        """)
+        logger.info("Dropped existing tables")
+        
+        # 1. The companies Table
+        cursor.execute("""
+            CREATE TABLE companies (
+                company_domain TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                industry TEXT CHECK (industry IN ('Retail', 'Wholesale', 'Manufacturing', 'Distribution'))
+            );
+        """)
+        logger.info("Created companies table")
+        
+        # 2. The contacts Table
+        cursor.execute("""
+            CREATE TABLE contacts (
+                contact_email TEXT PRIMARY KEY,
+                first_name TEXT,
+                last_name TEXT,
+                company_domain TEXT REFERENCES companies(company_domain)
+            );
+        """)
+        logger.info("Created contacts table")
+        
+        # 3. The users Table
+        cursor.execute("""
+            CREATE TABLE users (
                 user_id BIGSERIAL PRIMARY KEY,
                 email TEXT NOT NULL UNIQUE,
                 full_name TEXT
             );
         """)
+        logger.info("Created users table")
         
-        # Create companies table
-        cursor.execute(f"""
-            CREATE TABLE IF NOT EXISTS companies (
-                company_id BIGSERIAL PRIMARY KEY,
-                name TEXT NOT NULL,
-                company_domain TEXT UNIQUE,
-                phone TEXT,
-                city TEXT,
-                industry TEXT CHECK (industry IN ('Retail', 'Hospitality', 'E-commerce', 'Wholesale', 'Manufacturing', 'Distribution')),
-                number_of_employees INTEGER,
-                name_embedding vector({vector_dim})
-            );
-        """)
-        
-        # Create contacts table
-        cursor.execute(f"""
-            CREATE TABLE IF NOT EXISTS contacts (
-                contact_id BIGSERIAL PRIMARY KEY,
-                first_name TEXT,
-                last_name TEXT,
-                contact_email TEXT UNIQUE,
-                mobile_phone TEXT,
-                company_domain TEXT REFERENCES companies(company_domain),
-                name_embedding vector({vector_dim})
-            );
-        """)
-        
-        # Create products table
-        cursor.execute(f"""
-            CREATE TABLE IF NOT EXISTS products (
+        # 4. The products Table
+        cursor.execute("""
+            CREATE TABLE products (
                 product_id BIGSERIAL PRIMARY KEY,
-                external_id BIGINT UNIQUE,
                 name TEXT NOT NULL UNIQUE,
                 description TEXT,
-                price NUMERIC(18,2),
-                cost_of_goods_sold NUMERIC(18,2),
-                description_embedding vector({vector_dim})
+                price NUMERIC(18,2)
             );
         """)
+        logger.info("Created products table")
         
-        # Create deals table
+        # 5. The deals Table
         cursor.execute("""
             CREATE TABLE deals (
                 deal_id BIGSERIAL PRIMARY KEY,
                 deal_name TEXT NOT NULL,
                 deal_stage TEXT CHECK (deal_stage IN ('Appointment Scheduled', 'Qualified to Buy', 'Presentation Scheduled', 'Closed Won', 'Closed Lost')),
-                pipeline TEXT DEFAULT 'Sales Pipeline',
-                amount NUMERIC(10,2),
-                close_date TEXT CHECK (close_date ~ '^\d{2}/\d{2}/\d{4} \d{2}:\d{2}$'),
+                description TEXT,
                 contact_email TEXT REFERENCES contacts(contact_email),
                 company_domain TEXT REFERENCES companies(company_domain),
-                product_of_interest TEXT CHECK (product_of_interest IN ('2-slice toaster', '4-slice toaster', 'smart toaster', 'crumb tray kit', 'display stand')),
-                point_of_contact TEXT,
-                description TEXT,
-                name_embedding vector(768)
+                activity_date TEXT
             );
         """)
+        logger.info("Created deals table")
         
-        # Create deal_line_items table
-        cursor.execute("""
-            CREATE TABLE deal_line_items (
-                line_item_id BIGSERIAL PRIMARY KEY,
-                deal_id BIGINT NOT NULL REFERENCES deals(deal_id) ON DELETE CASCADE,
-                product_id BIGINT REFERENCES products(product_id),
-                name TEXT,
-                quantity INTEGER NOT NULL DEFAULT 1,
-                unit_price NUMERIC(18,2)
-            );
-        """)
-        
-        # Create tickets table
+        # 6. The tickets Table
         cursor.execute("""
             CREATE TABLE tickets (
                 ticket_id BIGSERIAL PRIMARY KEY,
                 ticket_name TEXT NOT NULL,
-                pipeline TEXT DEFAULT 'Support Pipeline',
-                ticket_status TEXT CHECK (ticket_status IN ('New', 'Open', 'Waiting on contact', 'Waiting on Us', 'Closed')),
                 priority TEXT CHECK (priority IN ('Low', 'Medium', 'High')),
-                source TEXT CHECK (source IN ('Email', 'Phone', 'Web form')),
-                ticket_owner TEXT,
-                activity_date TEXT CHECK (activity_date ~ '^\d{2}/\d{2}/\d{4} \d{2}:\d{2}$'),
+                issue_of_interest TEXT CHECK (issue_of_interest IN ('Crumb tray', 'Overheating', 'Wi‑Fi setup', 'Shipping delay', 'Thermostat', 'Packaging', 'Noise', 'Invoice')),
+                description TEXT,
                 contact_email TEXT REFERENCES contacts(contact_email),
                 company_domain TEXT REFERENCES companies(company_domain),
-                issue_of_interest TEXT CHECK (issue_of_interest IN ('Crumb tray', 'Overheating', 'Wi‑Fi setup', 'Shipping delay', 'Thermostat', 'Packaging', 'Noise', 'Invoice')),
-                issued_before TEXT CHECK (issued_before IN ('Yes', 'No')),
-                description TEXT,
-                name_embedding vector(768),
-                issue_embedding vector(768)
+                ticket_owner TEXT REFERENCES users(email),
+                activity_date TEXT
             );
         """)
+        logger.info("Created tickets table")
         
-        # Create tasks table
+        # 7. The notes Table
         cursor.execute("""
-            CREATE TABLE tasks (
-                task_id BIGSERIAL PRIMARY KEY,
-                due_at TIMESTAMPTZ,
-                title TEXT NOT NULL,
-                notes TEXT,
-                priority TEXT,
-                status TEXT,
-                task_type TEXT,
-                queue TEXT,
-                assigned_to_user_id BIGINT REFERENCES users(user_id),
-                deal_id BIGINT REFERENCES deals(deal_id),
-                title_embedding vector(768),
-                notes_embedding vector(768)
-            );
-        """)
-        
-        # Create calls table
-        cursor.execute(f"""
-            CREATE TABLE IF NOT EXISTS calls (
-                call_id BIGSERIAL PRIMARY KEY,
-                notes TEXT,
-                direction TEXT,
-                status TEXT,
-                title TEXT,
-                activity_at TIMESTAMPTZ,
-                assigned_to_user_id BIGINT REFERENCES users(user_id),
-                duration_ms BIGINT,
-                outcome TEXT,
-                source TEXT,
-                from_number TEXT,
-                to_number TEXT,
-                recording_url TEXT,
-                transcript_available BOOLEAN,
-                call_meeting_type TEXT,
-                notes_embedding vector({vector_dim})
-            );
-        """)
-        
-        # Create emails table
-        cursor.execute(f"""
-            CREATE TABLE IF NOT EXISTS emails (
-                email_id BIGSERIAL PRIMARY KEY,
-                contact_email TEXT REFERENCES contacts(contact_email),
-                subject TEXT,
-                send_status TEXT,
-                body TEXT,
-                direction TEXT,
-                subject_embedding vector({vector_dim}),
-                body_embedding vector({vector_dim})
-            );
-        """)
-        
-        # Create notes table
-        cursor.execute(f"""
             CREATE TABLE notes (
                 note_id BIGSERIAL PRIMARY KEY,
                 body TEXT NOT NULL,
-                activity_date DATE,
                 activity_assigned_to_user_id BIGINT REFERENCES users(user_id),
-                company_domain TEXT REFERENCES companies(company_domain),
-                ticket_id BIGINT REFERENCES tickets(ticket_id),
-                deal_id BIGINT REFERENCES deals(deal_id),
                 contact_email TEXT REFERENCES contacts(contact_email),
-                body_embedding vector(768)
+                deal_id BIGINT REFERENCES deals(deal_id),
+                ticket_id BIGINT REFERENCES tickets(ticket_id),
+                activity_date DATE
             );
         """)
+        logger.info("Created notes table")
         
-        # Create association tables
+        # 8. The calls Table
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS company_contact_associations (
+            CREATE TABLE calls (
+                call_id BIGSERIAL PRIMARY KEY,
+                notes TEXT,
+                direction TEXT,
+                assigned_to_user_id BIGINT REFERENCES users(user_id),
+                contact_email TEXT REFERENCES contacts(contact_email),
+                activity_at TIMESTAMPTZ
+            );
+        """)
+        logger.info("Created calls table")
+        
+        # 9. The emails Table
+        cursor.execute("""
+            CREATE TABLE emails (
+                email_id BIGSERIAL PRIMARY KEY,
+                body TEXT,
+                subject TEXT,
+                contact_email TEXT REFERENCES contacts(contact_email),
+                direction TEXT
+            );
+        """)
+        logger.info("Created emails table")
+        
+        # 10. The tasks Table
+        cursor.execute("""
+            CREATE TABLE tasks (
+                task_id BIGSERIAL PRIMARY KEY,
+                title TEXT NOT NULL,
+                notes TEXT,
+                assigned_to_user_id BIGINT REFERENCES users(user_id),
+                deal_id BIGINT REFERENCES deals(deal_id)
+            );
+        """)
+        logger.info("Created tasks table")
+        
+        # 11. The deal_line_items Table
+        cursor.execute("""
+            CREATE TABLE deal_line_items (
+                deal_id BIGINT REFERENCES deals(deal_id) ON DELETE CASCADE,
+                product_id BIGINT REFERENCES products(product_id),
+                quantity INTEGER NOT NULL DEFAULT 1,
+                unit_price NUMERIC(18,2)
+            );
+        """)
+        logger.info("Created deal_line_items table")
+        
+        # Create essential association tables
+        cursor.execute("""
+            CREATE TABLE company_contact_associations (
                 company_domain TEXT NOT NULL REFERENCES companies(company_domain) ON DELETE CASCADE,
                 contact_email TEXT NOT NULL REFERENCES contacts(contact_email) ON DELETE CASCADE,
-                label TEXT DEFAULT '',
-                PRIMARY KEY (company_domain, contact_email, label)
+                PRIMARY KEY (company_domain, contact_email)
             );
         """)
+        logger.info("Created company_contact_associations table")
         
         cursor.execute("""
             CREATE TABLE deal_company_associations (
                 deal_id BIGINT NOT NULL REFERENCES deals(deal_id) ON DELETE CASCADE,
                 company_domain TEXT NOT NULL REFERENCES companies(company_domain) ON DELETE CASCADE,
-                label TEXT DEFAULT '',
-                PRIMARY KEY (deal_id, company_domain, label)
+                PRIMARY KEY (deal_id, company_domain)
             );
         """)
+        logger.info("Created deal_company_associations table")
         
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS contact_contact_associations (
-                contact_email TEXT NOT NULL REFERENCES contacts(contact_email) ON DELETE CASCADE,
-                associated_contact_email TEXT NOT NULL REFERENCES contacts(contact_email) ON DELETE CASCADE,
-                label TEXT DEFAULT '',
-                PRIMARY KEY (contact_email, associated_contact_email, label)
-            );
-        """)
-        
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS company_company_associations (
-                company_domain TEXT NOT NULL REFERENCES companies(company_domain) ON DELETE CASCADE,
-                associated_company_domain TEXT NOT NULL REFERENCES companies(company_domain) ON DELETE CASCADE,
-                label TEXT DEFAULT '',
-                PRIMARY KEY (company_domain, associated_company_domain, label)
-            );
-        """)
-        
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS call_contacts (
-                call_id BIGINT NOT NULL REFERENCES calls(call_id) ON DELETE CASCADE,
-                contact_email TEXT NOT NULL REFERENCES contacts(contact_email),
-                PRIMARY KEY (call_id, contact_email)
-            );
-        """)
-        
-        # Create indexes
-        logger.info("Creating indexes...")
-        
-        # Unique indexes
-        cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_companies_domain ON companies(company_domain);")
-        cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_contacts_email ON contacts(contact_email);")
-        cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_products_name ON products(name);")
-        
-        # Vector indexes using pgvector
-        cursor.execute(f"CREATE INDEX IF NOT EXISTS idx_companies_name_vec ON companies USING ivfflat (name_embedding vector_cosine_ops) WITH (lists = {index_lists});")
-        cursor.execute(f"CREATE INDEX IF NOT EXISTS idx_contacts_name_vec ON contacts USING ivfflat (name_embedding vector_cosine_ops) WITH (lists = {index_lists});")
-        cursor.execute(f"CREATE INDEX IF NOT EXISTS idx_products_desc_vec ON products USING ivfflat (description_embedding vector_cosine_ops) WITH (lists = {index_lists});")
-        cursor.execute(f"CREATE INDEX IF NOT EXISTS idx_deals_name_vec ON deals USING ivfflat (name_embedding vector_cosine_ops) WITH (lists = {index_lists});")
-        cursor.execute(f"CREATE INDEX IF NOT EXISTS idx_tickets_name_vec ON tickets USING ivfflat (name_embedding vector_cosine_ops) WITH (lists = {index_lists});")
-        cursor.execute(f"CREATE INDEX IF NOT EXISTS idx_tickets_issue_vec ON tickets USING ivfflat (issue_embedding vector_cosine_ops) WITH (lists = {index_lists});")
-        cursor.execute(f"CREATE INDEX IF NOT EXISTS idx_tasks_title_vec ON tasks USING ivfflat (title_embedding vector_cosine_ops) WITH (lists = {index_lists});")
-        cursor.execute(f"CREATE INDEX IF NOT EXISTS idx_tasks_notes_vec ON tasks USING ivfflat (notes_embedding vector_cosine_ops) WITH (lists = {index_lists});")
-        cursor.execute(f"CREATE INDEX IF NOT EXISTS idx_calls_notes_vec ON calls USING ivfflat (notes_embedding vector_cosine_ops) WITH (lists = {index_lists});")
-        cursor.execute(f"CREATE INDEX IF NOT EXISTS idx_emails_subject_vec ON emails USING ivfflat (subject_embedding vector_cosine_ops) WITH (lists = {index_lists});")
-        cursor.execute(f"CREATE INDEX IF NOT EXISTS idx_emails_body_vec ON emails USING ivfflat (body_embedding vector_cosine_ops) WITH (lists = {index_lists});")
-        cursor.execute(f"CREATE INDEX IF NOT EXISTS idx_notes_body_vec ON notes USING ivfflat (body_embedding vector_cosine_ops) WITH (lists = {index_lists});")
+        # Create indexes for better performance
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_deals_contact ON deals(contact_email);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_deals_company ON deals(company_domain);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_tickets_contact ON tickets(contact_email);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_tickets_company ON tickets(company_domain);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_notes_contact ON notes(contact_email);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_notes_deal ON notes(deal_id);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_notes_ticket ON notes(ticket_id);")
         
         # Commit changes
         conn.commit()
-        logger.info("Database schema created successfully!")
+        logger.info("Simplified database schema created successfully!")
         
         cursor.close()
         conn.close()
         
     except Exception as e:
-        logger.error(f"Error creating schema: {e}")
+        logger.error(f"Error creating simplified schema: {e}")
         sys.exit(1)
 
 def main():
-    """Main function to create database and schema"""
-    logger.info("Starting HubSpot CRM database setup...")
+    """Main function to create database and simplified schema"""
+    logger.info("Starting Simplified HubSpot CRM database setup...")
     
     # Create database
     create_database()
     
-    # Create schema
-    create_schema()
+    # Create simplified schema
+    create_simplified_schema()
     
-    logger.info("HubSpot CRM database setup completed successfully!")
+    logger.info("Simplified HubSpot CRM database setup completed successfully!")
 
 if __name__ == "__main__":
     main() 
