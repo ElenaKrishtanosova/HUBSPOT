@@ -1,8 +1,8 @@
-company_domain,company_name,industry,number_of_employees,total_contacts,total_deals,total_tickets,total_notes,total_emails,total_tasks
-oliver.com,Suarez-Anderson,Hospitality,302,20,14,13,6,0,1
-garcia.com,"Thomas, Thomas and Williams",E-commerce,81,18,9,16,2,0,2
-adams.com,Garcia Group,Hospitality,746,17,12,20,3,0,0
-strong.com,"Sosa, Campbell and Thornton",Wholesale,552,15,9,11,2,0,2
-nichols-rivera.com,"Barr, Brooks and Myers",Retail,137,15,7,15,2,0,1
-sanchez.com,Baker Group,E-commerce,261,15,5,12,1,1,0
-TOTALS,,,2079,100,56,87,16,1,6
+company_domain,company_name,industry,number_of_employees,total_contacts,total_deals,total_sales_amount,total_tickets,total_notes,total_emails,total_tasks
+oliver.com,Suarez-Anderson,Hospitality,302,20,14,55776926.40,13,6,0,1
+garcia.com,"Thomas, Thomas and Williams",E-commerce,81,18,9,7723054.08,16,2,0,2
+adams.com,Garcia Group,Hospitality,746,17,12,34001383.80,20,3,0,0
+strong.com,"Sosa, Campbell and Thornton",Wholesale,552,15,9,7325841.60,11,2,0,2
+nichols-rivera.com,"Barr, Brooks and Myers",Retail,137,15,7,9424273.50,15,2,0,1
+sanchez.com,Baker Group,E-commerce,261,15,5,2344323.60,12,1,1,0
+TOTALS,,,2079,100,56,116595802.98,87,16,1,6

@@ -58,6 +58,7 @@ def get_company_summary():
                 c.number_of_employees,
                 COUNT(DISTINCT cca.contact_email) as total_contacts,
                 COUNT(DISTINCT dca.deal_id) as total_deals,
+                COALESCE(SUM(d.amount), 0) as total_sales_amount,
                 COUNT(DISTINCT t.ticket_id) as total_tickets,
                 COUNT(DISTINCT n.note_id) as total_notes,
                 COUNT(DISTINCT e.email_id) as total_emails,
@@ -65,11 +66,11 @@ def get_company_summary():
             FROM companies c
             LEFT JOIN company_contact_associations cca ON c.company_domain = cca.company_domain
             LEFT JOIN deal_company_associations dca ON c.company_domain = dca.company_domain
+            LEFT JOIN deals d ON dca.deal_id = d.deal_id
             LEFT JOIN tickets t ON c.company_domain = t.company_domain
             LEFT JOIN notes n ON c.company_domain = n.company_domain
             LEFT JOIN contacts cont ON cca.contact_email = cont.contact_email
             LEFT JOIN emails e ON cont.contact_email = e.contact_email
-            LEFT JOIN deals d ON dca.deal_id = d.deal_id
             LEFT JOIN tasks ts ON d.deal_id = ts.deal_id
             GROUP BY c.company_domain, c.name, c.industry, c.number_of_employees
             ORDER BY total_contacts DESC, total_deals DESC
@@ -82,7 +83,7 @@ def get_company_summary():
             
             column_order = [
                 'company_domain', 'company_name', 'industry', 'number_of_employees',
-                'total_contacts', 'total_deals', 'total_tickets', 
+                'total_contacts', 'total_deals', 'total_sales_amount', 'total_tickets', 
                 'total_notes', 'total_emails', 'total_tasks'
             ]
             df = df[column_order]
@@ -167,6 +168,7 @@ def main():
         'number_of_employees': df['number_of_employees'].sum(),
         'total_contacts': df['total_contacts'].sum(),
         'total_deals': df['total_deals'].sum(),
+        'total_sales_amount': df['total_sales_amount'].sum(),
         'total_tickets': df['total_tickets'].sum(),
         'total_notes': df['total_notes'].sum(),
         'total_emails': df['total_emails'].sum(),
