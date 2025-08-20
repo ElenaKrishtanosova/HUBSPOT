@@ -1,3 +1,42 @@
+#!/usr/bin/env python3
+"""
+HubSpot CRM Bulk Data Generator
+
+Генерирует тестовые данные для CRM системы с настраиваемыми параметрами.
+
+НАСТРОЙКИ:
+----------
+START_DATE: Начальная дата для генерации данных (формат: "YYYY-MM-DD")
+END_DATE: Конечная дата для генерации данных (формат: "YYYY-MM-DD")
+USE_BUSINESS_CYCLE: True/False - применять ли сезонность к генерации данных
+
+ПРИМЕРЫ ИСПОЛЬЗОВАНИЯ:
+-----------------------
+# Данные за 2023 год с сезонностью
+START_DATE = "2023-01-01"
+END_DATE = "2023-12-31"
+USE_BUSINESS_CYCLE = True
+
+# Данные за 2 года без сезонности
+START_DATE = "2022-01-01"
+END_DATE = "2024-12-31"
+USE_BUSINESS_CYCLE = False
+
+# Конкретный период
+START_DATE = "2023-06-01"
+END_DATE = "2024-05-31"
+USE_BUSINESS_CYCLE = True
+
+БИЗНЕС-ЦИКЛ:
+-------------
+Если USE_BUSINESS_CYCLE = True, применяются сезонные множители:
+- Январь-Март: 0.7-0.9 (низкий сезон)
+- Апрель-Июнь: 1.0-1.1 (средний сезон)
+- Июль-Сентябрь: 0.9-1.3 (средний сезон)
+- Октябрь-Декабрь: 1.5-2.5 (высокий сезон)
+
+Если USE_BUSINESS_CYCLE = False, все месяцы имеют множитель 1.0 (равномерное распределение)
+"""
 import uuid
 import random
 from datetime import datetime, timedelta
@@ -45,10 +84,38 @@ openai.api_key = OPENAI_API_KEY
 
 fake = Faker('en_US')
 
+# Временные настройки
+START_DATE = "2023-01-01"  # Начальная дата для генерации данных
+END_DATE = "2024-12-31"    # Конечная дата для генерации данных
+
+# Бизнес-цикл
+USE_BUSINESS_CYCLE = True   # True/False - применять ли сезонность
+
 BUSINESS_CYCLE_MULTIPLIERS = {
     1: 0.8, 2: 0.7, 3: 0.9, 4: 1.0, 5: 1.1, 6: 1.0,
     7: 0.9, 8: 1.2, 9: 1.3, 10: 1.5, 11: 1.8, 12: 2.5
-}
+} if USE_BUSINESS_CYCLE else {month: 1.0 for month in range(1, 13)}
+
+def get_month_multiplier(month):
+    """Получить множитель для месяца"""
+    if not USE_BUSINESS_CYCLE:
+        return 1.0
+    
+    return BUSINESS_CYCLE_MULTIPLIERS.get(month, 1.0)
+
+def get_date_range():
+    """Получить диапазон дат для генерации"""
+    if isinstance(START_DATE, str):
+        start_date = datetime.strptime(START_DATE, "%Y-%m-%d")
+    else:
+        start_date = START_DATE
+        
+    if isinstance(END_DATE, str):
+        end_date = datetime.strptime(END_DATE, "%Y-%m-%d")
+    else:
+        end_date = END_DATE
+    
+    return start_date, end_date
 
 PRODUCT_NAMES = ["2-slice toaster", "4-slice toaster", "smart toaster", "crumb tray kit", "display stand"]
 INDUSTRIES = ["Retail", "Hospitality", "E-commerce", "Wholesale", "Manufacturing", "Distribution"]
@@ -117,7 +184,7 @@ def generate_and_load_data():
 
     print("Starting data generation and loading...")
     
-    start_date = datetime.now() - timedelta(days=365)
+    start_date, end_date = get_date_range()
     
     # PHASE 1: Create users and products first (no dependencies)
     print("Phase 1: Creating users and products...")
@@ -199,11 +266,26 @@ def generate_and_load_data():
     deal_id_counter = 1
     ticket_id_counter = 1
     
-    for month in range(1, 13):
-        month_start_date = start_date.replace(month=month)
-        days_in_month = (month_start_date.replace(month=month+1) - month_start_date).days if month < 12 else 31
+    # Генерируем данные для каждого месяца в диапазоне
+    current_date = start_date
+    while current_date <= end_date:
+        month = current_date.month
+        year = current_date.year
         
-        multiplier = BUSINESS_CYCLE_MULTIPLIERS.get(month, 1.0)
+        # Создаем дату начала и конца месяца
+        month_start_date = current_date.replace(day=1)
+        if month == 12:
+            month_end_date = current_date.replace(year=year + 1, month=1, day=1) - timedelta(days=1)
+        else:
+            month_end_date = current_date.replace(month=month + 1, day=1) - timedelta(days=1)
+        
+        # Ограничиваем даты диапазоном
+        month_start_date = max(month_start_date, start_date)
+        month_end_date = min(month_end_date, end_date)
+        
+        days_in_month = (month_end_date - month_start_date).days + 1
+        
+        multiplier = get_month_multiplier(month)
 
         # Generate deals
         num_deals = int((TOTAL_DEALS / 12) * multiplier)
@@ -213,7 +295,7 @@ def generate_and_load_data():
             deal_name = generate_llm_content("Create a neutral deal name for a toaster company. The deal name should reflect a routine sale.")
             contact_email = random.choice(all_contact_emails) if all_contact_emails else None
             company_domain = random.choice(all_company_domains) if all_company_domains else None
-            close_date = fake.date_between(start_date=month_start_date, end_date=month_start_date + timedelta(days=days_in_month-1))
+            close_date = fake.date_between(start_date=month_start_date, end_date=month_end_date)
             close_date_str = close_date.strftime("%d/%m/%Y %H:%M")
             
             cur.execute(
@@ -248,7 +330,7 @@ def generate_and_load_data():
             ticket_name = generate_llm_content(PROMPTS['note'])
             contact_email = random.choice(all_contact_emails) if all_contact_emails else None
             company_domain = random.choice(all_company_domains) if all_company_domains else None
-            activity_date = fake.date_between(start_date=month_start_date, end_date=month_start_date + timedelta(days=days_in_month-1))
+            activity_date = fake.date_between(start_date=month_start_date, end_date=month_end_date)
             activity_date_str = activity_date.strftime("%d/%m/%Y %H:%M")
             
             cur.execute(
@@ -259,6 +341,12 @@ def generate_and_load_data():
             )
             all_ticket_ids.append(ticket_id)
 
+        # Переходим к следующему месяцу
+        if month == 12:
+            current_date = current_date.replace(year=year + 1, month=1)
+        else:
+            current_date = current_date.replace(month=month + 1)
+
     # PHASE 4: Create tasks, calls, emails, notes and associations
     print("Phase 4: Creating tasks, calls, emails, notes and associations...")
     
@@ -267,11 +355,26 @@ def generate_and_load_data():
     email_id_counter = 1
     note_id_counter = 1
     
-    for month in range(1, 13):
-        month_start_date = start_date.replace(month=month)
-        days_in_month = (month_start_date.replace(month=month+1) - month_start_date).days if month < 12 else 31
+    # Генерируем данные для каждого месяца в диапазоне
+    current_date = start_date
+    while current_date <= end_date:
+        month = current_date.month
+        year = current_date.year
         
-        multiplier = BUSINESS_CYCLE_MULTIPLIERS.get(month, 1.0)
+        # Создаем дату начала и конца месяца
+        month_start_date = current_date.replace(day=1)
+        if month == 12:
+            month_end_date = current_date.replace(year=year + 1, month=1, day=1) - timedelta(days=1)
+        else:
+            month_end_date = current_date.replace(month=month + 1, day=1) - timedelta(days=1)
+        
+        # Ограничиваем даты диапазоном
+        month_start_date = max(month_start_date, start_date)
+        month_end_date = min(month_end_date, end_date)
+        
+        days_in_month = (month_end_date - month_start_date).days + 1
+        
+        multiplier = get_month_multiplier(month)
         
         # Generate tasks
         num_tasks = int((TOTAL_TASKS / 12) * multiplier)
@@ -283,7 +386,7 @@ def generate_and_load_data():
             
             cur.execute(
                 """INSERT INTO tasks (task_id, due_at, title, notes, priority, status, task_type, queue, assigned_to_user_id, deal_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);""",
-                (task_id, fake.date_time_between(month_start_date, month_start_date + timedelta(days=days_in_month-1)),
+                (task_id, fake.date_time_between(month_start_date, month_end_date),
                  generate_llm_content(PROMPTS['task']), generate_llm_content(PROMPTS['task']),
                  random.choice(PRIORITIES), random.choice(TASK_STATUSES), 
                  random.choice(["Follow-up", "Research", "Call", "Email"]), 
@@ -302,7 +405,7 @@ def generate_and_load_data():
                 """INSERT INTO calls (call_id, notes, direction, status, title, activity_at, assigned_to_user_id, duration_ms, outcome, source, from_number, to_number, recording_url, transcript_available, call_meeting_type) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);""",
                 (call_id, generate_llm_content(PROMPTS['call']), random.choice(CALL_DIRECTIONS), 
                  random.choice(CALL_STATUSES), fake.sentence(nb_words=4),
-                 fake.date_time_between(month_start_date, month_start_date + timedelta(days=days_in_month-1)), 
+                 fake.date_time_between(month_start_date, month_end_date), 
                  assigned_user, random.randint(60000, 900000), 
                  random.choice(["Connected", "Left voicemail", "No Answer", "Busy"]),
                  random.choice(["Phone", "Mobile", "Office"]), fake.phone_number(), fake.phone_number(),
@@ -349,7 +452,7 @@ def generate_and_load_data():
             cur.execute(
                 """INSERT INTO notes (note_id, body, activity_date, activity_assigned_to_user_id, company_domain, ticket_id, deal_id, contact_email) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);""",
                 (note_id, generate_llm_content(PROMPTS['note']), 
-                 fake.date_between(start_date=month_start_date, end_date=month_start_date + timedelta(days=days_in_month-1)),
+                 fake.date_between(start_date=month_start_date, end_date=month_end_date),
                  user_id, company_domain, ticket_id, deal_id, contact_email)
             )
             all_note_ids.append(note_id)
@@ -373,6 +476,12 @@ def generate_and_load_data():
                     """INSERT INTO company_company_associations (company_domain, associated_company_domain, label) VALUES (%s, %s, %s);""",
                     (company1, company2, random.choice(["Parent", "Subsidiary", "Partner", "Competitor"]))
                 )
+
+        # Переходим к следующему месяцу
+        if month == 12:
+            current_date = current_date.replace(year=year + 1, month=1)
+        else:
+            current_date = current_date.replace(month=month + 1)
 
         conn.commit()
     
