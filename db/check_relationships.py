@@ -9,7 +9,6 @@ import yaml
 import psycopg2
 import pandas as pd
 from psycopg2.extras import RealDictCursor
-import logging
 
 def load_config():
     """Load configuration from YAML file"""
@@ -19,10 +18,8 @@ def load_config():
             config = yaml.safe_load(file)
         return config
     except FileNotFoundError:
-        print(f"❌ Configuration file not found: {config_path}")
         return None
     except yaml.YAMLError as e:
-        print(f"❌ Error parsing configuration file: {e}")
         return None
 
 def get_db_connection():
@@ -43,7 +40,6 @@ def get_db_connection():
         conn = psycopg2.connect(**db_config)
         return conn
     except Exception as e:
-        print(f"❌ Database connection failed: {e}")
         return None
 
 def get_company_summary():
@@ -54,7 +50,6 @@ def get_company_summary():
     
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            # Main query to get company summary with related data counts
             query = """
             SELECT 
                 c.company_domain,
@@ -83,10 +78,8 @@ def get_company_summary():
             cur.execute(query)
             results = cur.fetchall()
             
-            # Convert to DataFrame
             df = pd.DataFrame(results)
             
-            # Reorder columns for better readability
             column_order = [
                 'company_domain', 'company_name', 'industry', 'number_of_employees',
                 'total_contacts', 'total_deals', 'total_tickets', 
@@ -97,7 +90,6 @@ def get_company_summary():
             return df
             
     except Exception as e:
-        print(f"❌ Error executing query: {e}")
         return None
     finally:
         conn.close()
@@ -110,7 +102,6 @@ def get_relationship_integrity():
     
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            # Check for orphaned contacts
             cur.execute("""
                 SELECT 'orphaned_contacts' as issue_type, COUNT(*) as count 
                 FROM contacts c 
@@ -119,7 +110,6 @@ def get_relationship_integrity():
             """)
             orphaned_contacts = cur.fetchone()
             
-            # Check for orphaned deals
             cur.execute("""
                 SELECT 'orphaned_deals' as issue_type, COUNT(*) as count 
                 FROM deals d 
@@ -128,7 +118,6 @@ def get_relationship_integrity():
             """)
             orphaned_deals = cur.fetchone()
             
-            # Check for orphaned tickets
             cur.execute("""
                 SELECT 'orphaned_tickets' as issue_type, COUNT(*) as count 
                 FROM tickets t 
@@ -143,170 +132,19 @@ def get_relationship_integrity():
             return df
             
     except Exception as e:
-        print(f"❌ Error checking integrity: {e}")
         return None
     finally:
         conn.close()
-
-def get_company_details(company_domain):
-    """Get detailed information for a specific company"""
-    conn = get_db_connection()
-    if not conn:
-        return None
-    
-    try:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            # Company info
-            cur.execute("""
-                SELECT company_domain, name, industry, number_of_employees
-                FROM companies 
-                WHERE company_domain = %s
-            """, (company_domain,))
-            company_info = cur.fetchone()
-            
-            if not company_info:
-                print(f"❌ Company with domain {company_domain} not found")
-                return None
-            
-            # Contacts
-            cur.execute("""
-                SELECT contact_email, first_name, last_name, mobile_phone
-                FROM contacts 
-                WHERE company_domain = %s
-                LIMIT 5
-            """, (company_domain,))
-            contacts = cur.fetchall()
-            
-            # Deals
-            cur.execute("""
-                SELECT deal_id, deal_name, deal_stage, amount, close_date
-                FROM deals 
-                WHERE company_domain = %s
-                LIMIT 5
-            """, (company_domain,))
-            deals = cur.fetchall()
-            
-            # Tickets
-            cur.execute("""
-                SELECT ticket_id, 
-                       LEFT(ticket_name, 50) || '...' as ticket_name_short,
-                       ticket_status, priority, issue_of_interest
-                FROM tickets 
-                WHERE company_domain = %s
-                LIMIT 5
-            """, (company_domain,))
-            tickets = cur.fetchall()
-            
-            return {
-                'company_info': company_info,
-                'contacts': pd.DataFrame(contacts) if contacts else pd.DataFrame(),
-                'deals': pd.DataFrame(deals) if deals else pd.DataFrame(),
-                'tickets': pd.DataFrame(tickets) if tickets else pd.DataFrame()
-            }
-            
-    except Exception as e:
-        print(f"❌ Error getting company details: {e}")
-        return None
-    finally:
-        conn.close()
-
-def display_summary_table(df):
-    """Display the summary table with formatting"""
-    print("\n" + "="*120)
-    print("🏢 COMPANY RELATIONSHIPS SUMMARY TABLE")
-    print("="*120)
-    
-    # Format the DataFrame for display
-    display_df = df.copy()
-    
-    # Add totals row
-    totals = {
-        'company_domain': 'TOTALS',
-        'company_name': '',
-        'industry': '',
-        'number_of_employees': display_df['number_of_employees'].sum(),
-        'total_contacts': display_df['total_contacts'].sum(),
-        'total_deals': display_df['total_deals'].sum(),
-        'total_tickets': display_df['total_tickets'].sum(),
-        'total_notes': display_df['total_notes'].sum(),
-        'total_emails': display_df['total_emails'].sum(),
-        'total_tasks': display_df['total_tasks'].sum()
-    }
-    
-    totals_df = pd.DataFrame([totals])
-    display_df = pd.concat([display_df, totals_df], ignore_index=True)
-    
-    # Display with better formatting
-    pd.set_option('display.max_columns', None)
-    pd.set_option('display.width', None)
-    pd.set_option('display.max_colwidth', 15)
-    
-    # Rename columns for better display
-    display_df = display_df.rename(columns={
-        'company_domain': 'Domain',
-        'company_name': 'Company Name',
-        'industry': 'Industry',
-        'number_of_employees': 'Employees',
-        'total_contacts': 'Contacts',
-        'total_deals': 'Deals',
-        'total_tickets': 'Tickets',
-        'total_notes': 'Notes',
-        'total_emails': 'Emails',
-        'total_tasks': 'Tasks'
-    })
-    
-    print(display_df.to_string(index=False))
-    
-    # Display summary statistics
-    print("\n" + "="*120)
-    print("📊 SUMMARY STATISTICS")
-    print("="*120)
-    
-    print(f"Total Companies: {len(df)}")
-    print(f"Total Contacts: {df['total_contacts'].sum()}")
-    print(f"Total Deals: {df['total_deals'].sum()}")
-    print(f"Total Tickets: {df['total_tickets'].sum()}")
-    print(f"Total Notes: {df['total_notes'].sum()}")
-    print(f"Total Emails: {df['total_emails'].sum()}")
-    print(f"Total Tasks: {df['total_tasks'].sum()}")
-    
-    # Top performers
-    print(f"\n🏆 TOP PERFORMERS:")
-    print(f"Most Contacts: {df.loc[df['total_contacts'].idxmax(), 'company_name']} ({df['total_contacts'].max()})")
-    print(f"Most Deals: {df.loc[df['total_deals'].idxmax(), 'company_name']} ({df['total_deals'].max()})")
-    print(f"Most Tickets: {df.loc[df['total_tickets'].idxmax(), 'company_name']} ({df['total_tickets'].max()})")
-    
-    # Industry analysis
-    print(f"\n🏭 INDUSTRY ANALYSIS:")
-    industry_stats = df.groupby('industry').agg({
-        'total_contacts': 'sum',
-        'total_deals': 'sum',
-        'total_tickets': 'sum'
-    }).round(2)
-    print(industry_stats)
 
 def save_dataframe_to_csv(df, filename):
     """Save DataFrame to CSV file in extractions folder"""
     try:
-        # Create extractions directory path
         extractions_dir = os.path.join(os.path.dirname(__file__), '..', 'extractions')
-        
-        # Ensure directory exists
         os.makedirs(extractions_dir, exist_ok=True)
-        
-        # Full path for CSV file
         csv_path = os.path.join(extractions_dir, filename)
-        
-        # Save DataFrame to CSV
         df.to_csv(csv_path, index=False)
-        
-        print(f"\n💾 DataFrame saved to: {csv_path}")
-        print(f"📁 File size: {os.path.getsize(csv_path):,} bytes")
-        
         return csv_path
-        
     except Exception as e:
-        print(f"❌ Error saving CSV file: {e}")
         return None
 
 def get_company_relationships_dataframe():
@@ -316,102 +154,36 @@ def get_company_relationships_dataframe():
 
 def main():
     """Main function"""
-    print("🔍 HubSpot CRM Database Relationships Checker")
-    print("="*50)
-    
-    # Get company summary
-    print("📊 Fetching company relationships data...")
     df = get_company_summary()
     
     if df is None:
-        print("❌ Failed to get company summary")
         return
     
-    # Display summary table
-    display_summary_table(df)
+    # Add totals row
+    totals = {
+        'company_domain': 'TOTALS',
+        'company_name': '',
+        'industry': '',
+        'number_of_employees': df['number_of_employees'].sum(),
+        'total_contacts': df['total_contacts'].sum(),
+        'total_deals': df['total_deals'].sum(),
+        'total_tickets': df['total_tickets'].sum(),
+        'total_notes': df['total_notes'].sum(),
+        'total_emails': df['total_emails'].sum(),
+        'total_tasks': df['total_tasks'].sum()
+    }
     
-    # Save DataFrame to CSV
-    print("\n💾 Saving DataFrame to CSV...")
-    csv_path = save_dataframe_to_csv(df, 'company_relationships_summary.csv')
+    totals_df = pd.DataFrame([totals])
+    df_with_totals = pd.concat([df, totals_df], ignore_index=True)
     
-    if csv_path:
-        print(f"✅ CSV file saved successfully!")
-        
-        # Also save with totals row
-        totals_df = df.copy()
-        totals = {
-            'company_domain': 'TOTALS',
-            'company_name': '',
-            'industry': '',
-            'number_of_employees': totals_df['number_of_employees'].sum(),
-            'total_contacts': totals_df['total_contacts'].sum(),
-            'total_deals': totals_df['total_deals'].sum(),
-            'total_tickets': totals_df['total_tickets'].sum(),
-            'total_notes': totals_df['total_notes'].sum(),
-            'total_emails': totals_df['total_emails'].sum(),
-            'total_tasks': totals_df['total_tasks'].sum()
-        }
-        
-        totals_row_df = pd.DataFrame([totals])
-        totals_df = pd.concat([totals_df, totals_row_df], ignore_index=True)
-        
-        totals_csv_path = save_dataframe_to_csv(totals_df, 'company_relationships_with_totals.csv')
-        if totals_csv_path:
-            print(f"✅ Totals CSV file saved successfully!")
+    # Save to CSV
+    save_dataframe_to_csv(df_with_totals, 'company_relationships_with_totals.csv')
     
-    # Check relationship integrity
-    print("\n🔍 Checking relationship integrity...")
+    # Check integrity and save
     integrity_df = get_relationship_integrity()
-    
     if integrity_df is not None:
-        print("\n" + "="*50)
-        print("✅ RELATIONSHIP INTEGRITY CHECK")
-        print("="*50)
-        print(integrity_df.to_string(index=False))
-        
-        # Save integrity check to CSV
-        integrity_csv_path = save_dataframe_to_csv(integrity_df, 'relationship_integrity_check.csv')
-        
-        # Check if there are any issues
-        total_orphaned = integrity_df['count'].sum()
-        if total_orphaned == 0:
-            print("\n🎉 All relationships are intact! No orphaned records found.")
-        else:
-            print(f"\n⚠️ Found {total_orphaned} orphaned records that need attention.")
+        save_dataframe_to_csv(integrity_df, 'relationship_integrity_check.csv')
     
-    # Example: Get details for first company
-    if not df.empty:
-        first_company = df.iloc[0]['company_domain']
-        print(f"\n📋 Getting details for {first_company}...")
-        
-        details = get_company_details(first_company)
-        if details:
-            print(f"\n🏢 Company: {details['company_info']['name']} ({details['company_info']['company_domain']})")
-            print(f"Industry: {details['company_info']['industry']}")
-            print(f"Employees: {details['company_info']['number_of_employees']}")
-            
-            if not details['contacts'].empty:
-                print(f"\n👥 Sample Contacts ({len(details['contacts'])}):")
-                print(details['contacts'].to_string(index=False))
-                
-                # Save contacts sample to CSV
-                contacts_csv_path = save_dataframe_to_csv(details['contacts'], f'{first_company}_contacts_sample.csv')
-            
-            if not details['deals'].empty:
-                print(f"\n💼 Sample Deals ({len(details['deals'])}):")
-                print(details['deals'].to_string(index=False))
-                
-                # Save deals sample to CSV
-                deals_csv_path = save_dataframe_to_csv(details['deals'], f'{first_company}_deals_sample.csv')
-            
-            if not details['tickets'].empty:
-                print(f"\n🎫 Sample Tickets ({len(details['tickets'])}):")
-                print(details['tickets'].to_string(index=False))
-                
-                # Save tickets sample to CSV
-                tickets_csv_path = save_dataframe_to_csv(details['tickets'], f'{first_company}_tickets_sample.csv')
-    
-    # Return the main DataFrame for further use
     return df
 
 if __name__ == "__main__":
