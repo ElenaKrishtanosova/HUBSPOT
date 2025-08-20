@@ -63,14 +63,14 @@ EMAIL_STATUSES = ["Sent", "Delivered", "Read", "Failed"]
 TICKET_SOURCES = ["Email", "Phone", "Web form"]
 ISSUES_OF_INTEREST = ["Crumb tray", "Overheating", "Wi‑Fi setup", "Shipping delay", "Thermostat", "Packaging", "Noise", "Invoice"]
 
-TOTAL_CONTACTS = 100
+TOTAL_CONTACTS = 10
 TOTAL_COMPANIES = 6
-TOTAL_DEALS = 50
-TOTAL_TICKETS = 75
-TOTAL_TASKS = 10
-TOTAL_CALLS = 10
+TOTAL_DEALS = 10
+TOTAL_TICKETS = 15
+TOTAL_TASKS = 5
+TOTAL_CALLS = 5
 TOTAL_EMAILS = 5
-TOTAL_NOTES = 18
+TOTAL_NOTES = 8
 TOTAL_PRODUCTS = 5
 
 # --- LLM Integration ---
@@ -208,7 +208,7 @@ def generate_and_load_data():
         # Generate deals
         num_deals = int((TOTAL_DEALS / 12) * multiplier)
         for _ in range(num_deals):
-            deal_id = f"DEAL{deal_id_counter:06d}"
+            deal_id = deal_id_counter
             deal_id_counter += 1
             deal_name = generate_llm_content("Create a neutral deal name for a toaster company. The deal name should reflect a routine sale.")
             contact_email = random.choice(all_contact_emails) if all_contact_emails else None
@@ -243,7 +243,7 @@ def generate_and_load_data():
         # Generate tickets
         num_tickets = int((TOTAL_TICKETS / 12) * multiplier)
         for _ in range(num_tickets):
-            ticket_id = f"TICKET{ticket_id_counter:06d}"
+            ticket_id = ticket_id_counter
             ticket_id_counter += 1
             ticket_name = generate_llm_content(PROMPTS['note'])
             contact_email = random.choice(all_contact_emails) if all_contact_emails else None

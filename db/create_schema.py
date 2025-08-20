@@ -148,28 +148,28 @@ def create_schema():
         """)
         
         # Create deals table
-        cursor.execute(f"""
-            CREATE TABLE IF NOT EXISTS deals (
-                deal_id TEXT PRIMARY KEY,
+        cursor.execute("""
+            CREATE TABLE deals (
+                deal_id BIGSERIAL PRIMARY KEY,
                 deal_name TEXT NOT NULL,
                 deal_stage TEXT CHECK (deal_stage IN ('Appointment Scheduled', 'Qualified to Buy', 'Presentation Scheduled', 'Closed Won', 'Closed Lost')),
-                pipeline TEXT,
-                amount NUMERIC(18,2),
-                close_date TEXT,
+                pipeline TEXT DEFAULT 'Sales Pipeline',
+                amount NUMERIC(10,2),
+                close_date TEXT CHECK (close_date ~ '^\d{2}/\d{2}/\d{4} \d{2}:\d{2}$'),
                 contact_email TEXT REFERENCES contacts(contact_email),
                 company_domain TEXT REFERENCES companies(company_domain),
                 product_of_interest TEXT CHECK (product_of_interest IN ('2-slice toaster', '4-slice toaster', 'smart toaster', 'crumb tray kit', 'display stand')),
                 point_of_contact TEXT,
                 description TEXT,
-                name_embedding vector({vector_dim})
+                name_embedding vector(768)
             );
         """)
         
         # Create deal_line_items table
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS deal_line_items (
+            CREATE TABLE deal_line_items (
                 line_item_id BIGSERIAL PRIMARY KEY,
-                deal_id TEXT NOT NULL REFERENCES deals(deal_id) ON DELETE CASCADE,
+                deal_id BIGINT NOT NULL REFERENCES deals(deal_id) ON DELETE CASCADE,
                 product_id BIGINT REFERENCES products(product_id),
                 name TEXT,
                 quantity INTEGER NOT NULL DEFAULT 1,
@@ -178,29 +178,29 @@ def create_schema():
         """)
         
         # Create tickets table
-        cursor.execute(f"""
-            CREATE TABLE IF NOT EXISTS tickets (
-                ticket_id TEXT PRIMARY KEY,
+        cursor.execute("""
+            CREATE TABLE tickets (
+                ticket_id BIGSERIAL PRIMARY KEY,
                 ticket_name TEXT NOT NULL,
                 pipeline TEXT DEFAULT 'Support Pipeline',
                 ticket_status TEXT CHECK (ticket_status IN ('New', 'Open', 'Waiting on contact', 'Waiting on Us', 'Closed')),
                 priority TEXT CHECK (priority IN ('Low', 'Medium', 'High')),
                 source TEXT CHECK (source IN ('Email', 'Phone', 'Web form')),
                 ticket_owner TEXT,
-                activity_date TEXT,
+                activity_date TEXT CHECK (activity_date ~ '^\d{2}/\d{2}/\d{4} \d{2}:\d{2}$'),
                 contact_email TEXT REFERENCES contacts(contact_email),
                 company_domain TEXT REFERENCES companies(company_domain),
                 issue_of_interest TEXT CHECK (issue_of_interest IN ('Crumb tray', 'Overheating', 'Wi‑Fi setup', 'Shipping delay', 'Thermostat', 'Packaging', 'Noise', 'Invoice')),
                 issued_before TEXT CHECK (issued_before IN ('Yes', 'No')),
                 description TEXT,
-                name_embedding vector({vector_dim}),
-                issue_embedding vector({vector_dim})
+                name_embedding vector(768),
+                issue_embedding vector(768)
             );
         """)
         
         # Create tasks table
-        cursor.execute(f"""
-            CREATE TABLE IF NOT EXISTS tasks (
+        cursor.execute("""
+            CREATE TABLE tasks (
                 task_id BIGSERIAL PRIMARY KEY,
                 due_at TIMESTAMPTZ,
                 title TEXT NOT NULL,
@@ -210,9 +210,9 @@ def create_schema():
                 task_type TEXT,
                 queue TEXT,
                 assigned_to_user_id BIGINT REFERENCES users(user_id),
-                deal_id TEXT REFERENCES deals(deal_id),
-                title_embedding vector({vector_dim}),
-                notes_embedding vector({vector_dim})
+                deal_id BIGINT REFERENCES deals(deal_id),
+                title_embedding vector(768),
+                notes_embedding vector(768)
             );
         """)
         
@@ -254,16 +254,16 @@ def create_schema():
         
         # Create notes table
         cursor.execute(f"""
-            CREATE TABLE IF NOT EXISTS notes (
+            CREATE TABLE notes (
                 note_id BIGSERIAL PRIMARY KEY,
                 body TEXT NOT NULL,
                 activity_date DATE,
                 activity_assigned_to_user_id BIGINT REFERENCES users(user_id),
                 company_domain TEXT REFERENCES companies(company_domain),
-                ticket_id TEXT REFERENCES tickets(ticket_id),
-                deal_id TEXT REFERENCES deals(deal_id),
+                ticket_id BIGINT REFERENCES tickets(ticket_id),
+                deal_id BIGINT REFERENCES deals(deal_id),
                 contact_email TEXT REFERENCES contacts(contact_email),
-                body_embedding vector({vector_dim})
+                body_embedding vector(768)
             );
         """)
         
@@ -278,8 +278,8 @@ def create_schema():
         """)
         
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS deal_company_associations (
-                deal_id TEXT NOT NULL REFERENCES deals(deal_id) ON DELETE CASCADE,
+            CREATE TABLE deal_company_associations (
+                deal_id BIGINT NOT NULL REFERENCES deals(deal_id) ON DELETE CASCADE,
                 company_domain TEXT NOT NULL REFERENCES companies(company_domain) ON DELETE CASCADE,
                 label TEXT DEFAULT '',
                 PRIMARY KEY (deal_id, company_domain, label)

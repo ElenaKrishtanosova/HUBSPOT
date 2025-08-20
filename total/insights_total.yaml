@@ -1,6 +1,6 @@
 insights:
   - id: 1
-    insight_name: "Product App Issues"
+    insight_name: "Model 'Sunset' Product Issues"
     category: "Risks"
     business_value: "Risk"
     insight_text: "A pattern of support notes indicates that customers are finding the 'smart toaster' app to be 'buggy' and 'freezes frequently.'"
@@ -51,7 +51,7 @@ insights:
     insight_name: "Misunderstood Feature"
     category: "Issues"
     business_value: "Issue"
-    insight_text: "Multiple tickets and notes reveal customers don't understand how to use the 'bagel' setting on the 'Retro' model, often thinking it's broken."
+    insight_text: "Analysis of support calls and tickets shows customers are repeatedly misusing the 'bagel' setting on the 'Retro' model, often thinking it's broken."
 
   - id: 10
     insight_name: "Communication Gaps"
@@ -106,3 +106,75 @@ insights:
     category: "Opportunities"
     business_value: "Opportunity"
     insight_text: "An unusual spike in deal inquiries has been observed from boutique cafes in the Downtown LA area, a vertical we had not previously targeted."
+  
+  - id: 19
+    insight_name: "Pricing Model Reaction"
+    category: "Sentiment"
+    business_value: "Sentiment"
+    insight_text: "B2B decision-makers in deal conversations are consistently reacting with confusion to our tiered pricing model, calling it 'complicated' and 'lacking transparency.'"
+  
+  - id: 20
+    insight_name: "Positive Themes"
+    category: "Sentiment"
+    business_value: "Sentiment"
+    insight_text: "In feedback, customers consistently praise the 'durability and build quality' of our classic toaster models."
+  
+  - id: 21
+    insight_name: "Negative Sentiment Triggers"
+    category: "Sentiment"
+    business_value: "Sentiment"
+    insight_text: "Pricing discussions for our 'smart toaster' consistently trigger the most negative sentiment, with customers questioning the value of the added features for the cost."
+  
+  - id: 22
+    insight_name: "Sentiment Trend"
+    category: "Sentiment"
+    business_value: "Sentiment"
+    insight_text: "The general sentiment in customer reviews has shown a steady decline over the last three months, particularly related to support interactions."
+  
+  - id: 23
+    insight_name: "Support Conversation Tone"
+    category: "Sentiment"
+    business_value: "Sentiment"
+    insight_text: "Support-related call transcripts show a consistently neutral-to-negative tone, with a notable lack of positive sentiment."
+  
+  - id: 24
+    insight_name: "Product Roadmap Feedback"
+    category: "Sentiment"
+    business_value: "Sentiment"
+    insight_text: "Customers on calls express excitement about our product roadmap but also frustration over the lack of specific release dates, indicating a mix of positive and negative feelings."
+  
+  - id: 25
+    insight_name: "Gluten-Free Keyword Spike"
+    category: "Trends"
+    business_value: "Trend"
+    insight_text: "The phrase 'gluten-free' is spiking unexpectedly in customer feedback and support calls, indicating a growing health-conscious segment of our market."
+  
+  - id: 26
+    insight_name: "Emerging Use Cases"
+    category: "Trends"
+    business_value: "Trend"
+    insight_text: "A new use case for toasters is emerging in customer conversations: a tool for quickly reheating pre-made breakfast sandwiches for busy professionals."
+  
+  - id: 27
+    insight_name: "Eco-Friendly Mentions"
+    category: "Trends"
+    business_value: "Trend"
+    insight_text: "The positive mention of 'eco-friendly packaging' is steadily increasing in online reviews and notes from new customers."
+  
+  - id: 28
+    insight_name: "Decreased Shipping Complaints"
+    category: "Trends"
+    business_value: "Trend"
+    insight_text: "Complaints about slow shipping times, a previous issue, have decreased by 50% in the last six months, signaling a successful improvement effort."
+  
+  - id: 29
+    insight_name: "Language Shift"
+    category: "Trends"
+    business_value: "Trend"
+    insight_text: "The language used by new customers is shifting from 'convenience' to 'health and wellness,' with a greater focus on food quality and preparation."
+  
+  - id: 30
+    insight_name: "Cross-Industry Expectations"
+    category: "Trends"
+    business_value: "Trend"
+    insight_text: "Across the hospitality and e-commerce industries, there's a growing expectation for toasters to have smart, app-based features, indicating a consistent shift in customer needs."

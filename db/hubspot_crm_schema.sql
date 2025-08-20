@@ -44,48 +44,48 @@ CREATE TABLE products (
 	description_embedding VECTOR(768)
 );
 
+-- Deals table
 CREATE TABLE deals (
-	deal_id TEXT PRIMARY KEY,
-	deal_name TEXT NOT NULL,
-	deal_stage TEXT CHECK (deal_stage IN ('Appointment Scheduled', 'Qualified to Buy', 'Presentation Scheduled', 'Closed Won', 'Closed Lost')),
-	pipeline TEXT,
-	amount NUMERIC(18,2),
-	close_date TEXT, -- format: dd/mm/yyyy hh:mm
-	contact_email TEXT REFERENCES contacts(contact_email),
-	company_domain TEXT REFERENCES companies(company_domain),
-	product_of_interest TEXT CHECK (product_of_interest IN ('2-slice toaster', '4-slice toaster', 'smart toaster', 'crumb tray kit', 'display stand')),
-	point_of_contact TEXT,
-	description TEXT, -- consistent with product_of_interest - deal notes or associate emails
-	-- semantic search on how the deal is described/named
-	name_embedding VECTOR(768)
+    deal_id BIGSERIAL PRIMARY KEY,
+    deal_name TEXT NOT NULL,
+    deal_stage TEXT CHECK (deal_stage IN ('Appointment Scheduled', 'Qualified to Buy', 'Presentation Scheduled', 'Closed Won', 'Closed Lost')),
+    pipeline TEXT DEFAULT 'Sales Pipeline',
+    amount NUMERIC(10,2),
+    close_date TEXT CHECK (close_date ~ '^\d{2}/\d{2}/\d{4} \d{2}:\d{2}$'),
+    contact_email TEXT REFERENCES contacts(contact_email),
+    company_domain TEXT REFERENCES companies(company_domain),
+    product_of_interest TEXT CHECK (product_of_interest IN ('2-slice toaster', '4-slice toaster', 'smart toaster', 'crumb tray kit', 'display stand')),
+    point_of_contact TEXT,
+    description TEXT,
+    name_embedding vector(768)
 );
 
 CREATE TABLE deal_line_items (
 	line_item_id BIGSERIAL PRIMARY KEY,
-	deal_id TEXT NOT NULL REFERENCES deals(deal_id) ON DELETE CASCADE,
+	deal_id BIGINT NOT NULL REFERENCES deals(deal_id) ON DELETE CASCADE,
 	product_id BIGINT REFERENCES products(product_id),
 	name TEXT,
 	quantity INTEGER NOT NULL DEFAULT 1,
 	unit_price NUMERIC(18,2)
 );
 
+-- Tickets table
 CREATE TABLE tickets (
-	ticket_id TEXT PRIMARY KEY,
-	ticket_name TEXT NOT NULL,
-	pipeline TEXT DEFAULT 'Support Pipeline',
-	ticket_status TEXT CHECK (ticket_status IN ('New', 'Open', 'Waiting on contact', 'Waiting on Us', 'Closed')),
-	priority TEXT CHECK (priority IN ('Low', 'Medium', 'High')),
-	source TEXT CHECK (source IN ('Email', 'Phone', 'Web form')),
-	ticket_owner TEXT, -- email in the domain of the company that owns the system
-	activity_date TEXT, -- format: dd/mm/yyyy hh:mm
-	contact_email TEXT REFERENCES contacts(contact_email),
-	company_domain TEXT REFERENCES companies(company_domain),
-	issue_of_interest TEXT CHECK (issue_of_interest IN ('Crumb tray', 'Overheating', 'Wi‑Fi setup', 'Shipping delay', 'Thermostat', 'Packaging', 'Noise', 'Invoice')),
-	issued_before TEXT CHECK (issued_before IN ('Yes', 'No')),
-	description TEXT, -- consistent with issue_of_interest - ticket notes and/or associated emails
-	-- search on summarized issue/title for support workflows
-	name_embedding VECTOR(768),
-	issue_embedding VECTOR(768)
+    ticket_id BIGSERIAL PRIMARY KEY,
+    ticket_name TEXT NOT NULL,
+    pipeline TEXT DEFAULT 'Support Pipeline',
+    ticket_status TEXT CHECK (ticket_status IN ('New', 'Open', 'Waiting on contact', 'Waiting on Us', 'Closed')),
+    priority TEXT CHECK (priority IN ('Low', 'Medium', 'High')),
+    source TEXT CHECK (source IN ('Email', 'Phone', 'Web form')),
+    ticket_owner TEXT,
+    activity_date TEXT CHECK (activity_date ~ '^\d{2}/\d{2}/\d{4} \d{2}:\d{2}$'),
+    contact_email TEXT REFERENCES contacts(contact_email),
+    company_domain TEXT REFERENCES companies(company_domain),
+    issue_of_interest TEXT CHECK (issue_of_interest IN ('Crumb tray', 'Overheating', 'Wi‑Fi setup', 'Shipping delay', 'Thermostat', 'Packaging', 'Noise', 'Invoice')),
+    issued_before TEXT CHECK (issued_before IN ('Yes', 'No')),
+    description TEXT,
+    name_embedding vector(768),
+    issue_embedding vector(768)
 );
 
 -- Activities
@@ -100,7 +100,7 @@ CREATE TABLE tasks (
 	task_type TEXT,
 	queue TEXT,
 	assigned_to_user_id BIGINT REFERENCES users(user_id),
-	deal_id TEXT REFERENCES deals(deal_id),
+	deal_id BIGINT REFERENCES deals(deal_id),
 	-- task intent and content search
 	title_embedding VECTOR(768),
 	notes_embedding VECTOR(768)
@@ -144,8 +144,8 @@ CREATE TABLE notes (
 	activity_date DATE,
 	activity_assigned_to_user_id BIGINT REFERENCES users(user_id),
 	company_domain TEXT REFERENCES companies(company_domain),
-	ticket_id TEXT REFERENCES tickets(ticket_id),
-	deal_id TEXT REFERENCES deals(deal_id),
+	ticket_id BIGINT REFERENCES tickets(ticket_id),
+	deal_id BIGINT REFERENCES deals(deal_id),
 	contact_email TEXT REFERENCES contacts(contact_email),
 	-- long-form context used by reps
 	body_embedding VECTOR(768)
@@ -161,7 +161,7 @@ CREATE TABLE company_contact_associations (
 );
 
 CREATE TABLE deal_company_associations (
-	deal_id TEXT NOT NULL REFERENCES deals(deal_id) ON DELETE CASCADE,
+	deal_id BIGINT NOT NULL REFERENCES deals(deal_id) ON DELETE CASCADE,
 	company_domain TEXT NOT NULL REFERENCES companies(company_domain) ON DELETE CASCADE,
 	label TEXT DEFAULT '',
 	PRIMARY KEY (deal_id, company_domain, label)

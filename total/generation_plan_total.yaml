@@ -1,0 +1,52 @@
+insight_name: "Model 'Sunset' Product Issues"
+description: "A data generation plan to validate the insight about increased support complaints for the 'Sunset' toaster, focusing on tickets, notes, and reviews."
+
+data_to_generate:
+  - entity: "contacts"
+    count: 10
+    properties:
+      - name: "first_name"
+        type: "faker.first_name_male"
+      - name: "last_name"
+        type: "faker.last_name_male"
+      - name: "email"
+        type: "faker.email"
+
+  - entity: "tickets"
+    count: 10
+    link_to_entity: "contacts"
+    link_with_field: "external_id"
+    properties:
+      - name: "name"
+        value: "Problem with 'Sunset' Toaster - Lever not working"
+        type: "static"
+      - name: "pipeline"
+        value: "Support"
+        type: "static"
+      - name: "status"
+        value: "New"
+        type: "static"
+      - name: "priority"
+        value: "High"
+        type: "static"
+      - name: "notes"
+        type: "llm_generated_text"
+        llm_prompt_context:
+          - "Client complains that the lever on the 'Sunset' toaster won't stay down, so the bread doesn't get toasted."
+          - "Client is upset that the 'Sunset' toaster emits black smoke and a burning smell when turned on."
+
+  - entity: "notes"
+    count: 5
+    link_to_entity: "contacts"
+    link_with_field: "contact_id"
+    properties:
+      - name: "body"
+        type: "llm_generated_text"
+        llm_prompt_context:
+          - "Manager's note: Client called to complain about the 'Sunset' toaster's uneven toasting. The right side is always pale while the left is almost black."
+          - "Note: A client left a negative review on the website mentioning that the 'Sunset' toaster stopped working after only a month."
+      - name: "activity_date"
+        type: "faker.recent_past"
+      - name: "activity_assigned_to_user_id"
+        value: "user-123"
+        type: "static"
