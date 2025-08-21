@@ -144,21 +144,11 @@ def generate_insight_data(yaml_plan_path, db_config = DB_CONFIG , start_date_str
                         random_days = random.randint(0, (end_date - start_date).days)
                         random_date = start_date + timedelta(days=random_days)
                         
-                        # Special handling for tickets.activity_date which requires DD/MM/YYYY HH:MM format
-                        if entity_name == "tickets" and prop_name == "activity_date":
-                            # Add random time and format as DD/MM/YYYY HH:MM
-                            random_time = datetime.combine(random_date.date(), 
-                                datetime.min.time().replace(hour=random.randint(9, 17), 
-                                                          minute=random.randint(0, 59)))
-                            record[prop_name] = random_time.strftime("%d/%m/%Y %H:%M")
-                        elif entity_name == "tasks" and prop_name == "created_at":
-                            # For tasks.created_at, use TIMESTAMPTZ format
-                            random_time = datetime.combine(random_date.date(), 
-                                datetime.min.time().replace(hour=random.randint(9, 17), 
-                                                          minute=random.randint(0, 59)))
-                            record[prop_name] = random_time
-                        else:
-                            record[prop_name] = random_date
+                        # Add random time for all date fields to create TIMESTAMPTZ
+                        random_time = datetime.combine(random_date.date(), 
+                            datetime.min.time().replace(hour=random.randint(9, 17), 
+                                                      minute=random.randint(0, 59)))
+                        record[prop_name] = random_time
                     elif prop_type == 'random_existing_id':
                         if not existing_ids.get(prop['table']):
                             # This scenario might indicate an empty database or misconfiguration

@@ -152,7 +152,7 @@ def create_simplified_schema():
                 description TEXT,
                 contact_email TEXT REFERENCES contacts(contact_email),
                 company_domain TEXT REFERENCES companies(company_domain),
-                activity_date TEXT
+                activity_date TIMESTAMPTZ
             );
         """)
         logger.info("Created deals table")
@@ -168,7 +168,7 @@ def create_simplified_schema():
                 contact_email TEXT REFERENCES contacts(contact_email),
                 company_domain TEXT REFERENCES companies(company_domain),
                 ticket_owner TEXT REFERENCES users(email),
-                activity_date TEXT
+                activity_date TIMESTAMPTZ
             );
         """)
         logger.info("Created tickets table")
@@ -182,7 +182,7 @@ def create_simplified_schema():
                 contact_email TEXT REFERENCES contacts(contact_email),
                 deal_id BIGINT REFERENCES deals(deal_id),
                 ticket_id BIGINT REFERENCES tickets(ticket_id),
-                activity_date DATE
+                activity_date TIMESTAMPTZ
             );
         """)
         logger.info("Created notes table")

@@ -27,4 +27,4 @@ Key Features:
 - Simplified structure without vector embeddings
 - Essential fields only for business insights
 - Support for incremental data insertion
-- All activity tables have timestamp fields for time-based filtering
+- All date fields use TIMESTAMPTZ for consistency and time-based filtering

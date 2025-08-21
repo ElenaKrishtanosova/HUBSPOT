@@ -297,7 +297,7 @@ def generate_and_load_data():
                 """INSERT INTO deals (deal_name, deal_stage, description, contact_email, company_domain, activity_date) VALUES (%s, %s, %s, %s, %s, %s);""",
                 (deal_name, random.choice(DEAL_STAGES), 
                  generate_llm_content("Write a brief description of this deal."), 
-                 contact_email, company_domain, close_date_str)
+                 contact_email, company_domain, close_date)
             )
             # Get deal_id from database since it's auto-generated
             cur.execute("SELECT deal_id FROM deals WHERE deal_name = %s AND contact_email = %s", (deal_name, contact_email))
@@ -343,7 +343,7 @@ def generate_and_load_data():
                 """INSERT INTO tickets (ticket_name, priority, issue_of_interest, description, contact_email, company_domain, ticket_owner, activity_date) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);""",
                 (ticket_name, random.choice(PRIORITIES), random.choice(ISSUES_OF_INTEREST),
                  generate_llm_content("Write a brief description of this ticket issue."),
-                 contact_email, company_domain, ticket_owner_email, activity_date_str)
+                 contact_email, company_domain, ticket_owner_email, activity_date)
             )
             # Get ticket_id from database since it's auto-generated
             cur.execute("SELECT ticket_id FROM tickets WHERE ticket_name = %s AND contact_email = %s", (ticket_name, contact_email))
@@ -443,7 +443,7 @@ def generate_and_load_data():
             cur.execute(
                 """INSERT INTO notes (body, activity_assigned_to_user_id, contact_email, deal_id, ticket_id, activity_date) VALUES (%s, %s, %s, %s, %s, %s);""",
                 (generate_llm_content(PROMPTS['note']), user_id, contact_email, deal_id, ticket_id,
-                 fake.date_between(start_date=month_start_date, end_date=month_end_date))
+                 fake.date_time_between(month_start_date, month_end_date))
             )
             all_note_ids.append(note_id)
 

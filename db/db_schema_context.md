@@ -46,7 +46,7 @@ This document describes the simplified HubSpot CRM database schema optimized for
 | `description` | TEXT | - | Deal description |
 | `contact_email` | TEXT | FK → contacts.contact_email | Associated contact |
 | `company_domain` | TEXT | FK → companies.company_domain | Associated company |
-| `activity_date` | TEXT | - | Activity date |
+| `activity_date` | TIMESTAMPTZ | - | Activity timestamp |
 
 **Deal Stage Constraints:**
 - Appointment Scheduled
@@ -68,7 +68,7 @@ This document describes the simplified HubSpot CRM database schema optimized for
 | `contact_email` | TEXT | FK → contacts.contact_email | Associated contact |
 | `company_domain` | TEXT | FK → companies.company_domain | Associated company |
 | `ticket_owner` | TEXT | FK → users.email | Ticket owner email |
-| `activity_date` | TEXT | - | Activity date |
+| `activity_date` | TIMESTAMPTZ | - | Activity timestamp |
 
 **Priority Constraints:**
 - Low
@@ -153,7 +153,7 @@ This document describes the simplified HubSpot CRM database schema optimized for
 | `contact_email` | TEXT | FK → contacts.contact_email | Associated contact |
 | `deal_id` | BIGINT | FK → deals.deal_id | Associated deal |
 | `ticket_id` | BIGINT | FK → tickets.ticket_id | Associated ticket |
-| `activity_date` | DATE | - | Activity date |
+| `activity_date` | TIMESTAMPTZ | - | Activity timestamp |
 
 ### 11. Deal Line Items
 **Purpose:** Line items within deals
@@ -199,6 +199,14 @@ This document describes the simplified HubSpot CRM database schema optimized for
 - **Foreign keys:** Updated to reference BIGSERIAL fields
 - **Benefits:** Enables incremental data insertion without ID conflicts
 
+### Date Field Unification
+- **All date fields:** Now use TIMESTAMPTZ for consistency
+- **Benefits:** 
+  - Standardized format across all tables
+  - Better performance for time-based queries
+  - Easier data export and import
+  - Consistent timezone handling
+
 ### Field Consolidation
 - **Companies:** Simplified to essential fields (domain, name, industry)
 - **Contacts:** Streamlined structure with email as primary key
@@ -210,4 +218,5 @@ This document describes the simplified HubSpot CRM database schema optimized for
 - **Incremental Data:** Support for adding historical data
 - **Performance:** Simplified structure for faster queries
 - **Maintenance:** Easier to manage and update
+- **Time-based Analysis:** Consistent timestamp format for all date fields
 
