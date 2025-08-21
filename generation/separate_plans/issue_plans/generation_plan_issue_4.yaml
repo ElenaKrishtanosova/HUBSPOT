@@ -1,0 +1,49 @@
+insight_name: "Communication Gaps"
+description: "A data generation plan to validate the insight that sales representatives are not consistently following up on voicemails from new prospects within 24 hours. The plan focuses on creating a series of tasks that show a delayed follow-up."
+
+data_to_generate:
+  - entity: "tasks"
+    count: 5
+    properties:
+      - name: "title"
+        type: "static"
+        value: "Follow up with new prospect who left a voicemail"
+      - name: "notes"
+        type: "llm_generated_text"
+        llm_prompt_context:
+          - "Internal note: A new prospect from a cafe chain left a voicemail asking for a quote. The task was created but not completed within 24 hours."
+          - "Task note: This task is to follow up on an urgent voicemail from a new lead. It has been open for over 2 days, and the prospect has not been contacted."
+          - "Sales manager note: Noticed this task was overdue. We need to remind the team that new voicemails must be prioritized to avoid losing business."
+          - "Internal note: The prospect from this task called again, frustrated about the lack of follow-up. We have now lost the deal."
+      - name: "assigned_to_user_id"
+        type: "random_existing_id"
+        table: "users"
+        column: "user_id"
+      - name: "deal_id"
+        type: "random_existing_id"
+        table: "deals"
+        column: "deal_id"
+
+  - entity: "notes"
+    count: 3
+    properties:
+      - name: "body"
+        type: "llm_generated_text"
+        llm_prompt_context:
+          - "Follow-up note: Called the prospect back after 2 days. They were frustrated about the delay and had already contacted a competitor. This is a missed opportunity."
+          - "Internal note: Reminded the sales team that inbound voicemails from new prospects must be returned within 24 hours to prevent lost deals."
+          - "Sales manager note: Noticed a pattern of delayed follow-ups on inbound calls from new leads. We are losing business because of this communication gap."
+      - name: "activity_date"
+        type: "faker.past_date"
+      - name: "activity_assigned_to_user_id"
+        type: "random_existing_id"
+        table: "users"
+        column: "user_id"
+      - name: "contact_email"
+        type: "random_existing_id"
+        table: "contacts"
+        column: "contact_email"
+      - name: "deal_id"
+        type: "random_existing_id"
+        table: "deals"
+        column: "deal_id"

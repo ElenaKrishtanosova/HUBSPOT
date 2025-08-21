@@ -1,0 +1,59 @@
+insight_name: "Onboarding Friction"
+description: "A data generation plan to validate the insight that new clients experience confusion during onboarding. The plan focuses on creating a new contact and a series of emails that show a back-and-forth exchange to resolve a setup issue."
+
+data_to_generate:
+  - entity: "contacts"
+    count: 1
+    properties:
+      - name: "first_name"
+        type: "faker.first_name"
+      - name: "last_name"
+        type: "faker.last_name"
+      - name: "contact_email"
+        type: "faker.email"
+      - name: "company_domain"
+        type: "random_existing_id"
+        table: "companies"
+        column: "company_domain"
+
+  - entity: "emails"
+    count: 4
+    properties:
+      - name: "contact_email"
+        type: "random_existing_id"
+        table: "contacts"
+        column: "contact_email"
+      - name: "subject"
+        type: "static"
+        value: "Question about getting started with my new toaster"
+      - name: "body"
+        type: "llm_generated_text"
+        llm_prompt_context:
+          - "Customer email: I'm a new user and I'm confused about the steps to set up my account. The instructions in the manual are not very clear."
+          - "Support email: Thank you for reaching out. Please try following the steps in this video tutorial. Let us know if you still have trouble."
+          - "Customer email: The video was helpful, but I'm still getting an error message. I'm very frustrated with the setup process."
+          - "Support email: I apologize for the continued frustration. I'll connect you with a technical specialist who can walk you through the setup."
+      - name: "direction"
+        type: "static"
+        value: "Incoming"
+      - name: "created_at"
+        type: "faker.past_date"
+
+  - entity: "notes"
+    count: 2
+    properties:
+      - name: "body"
+        type: "llm_generated_text"
+        llm_prompt_context:
+          - "Internal note: New contact is struggling with the onboarding process. They've sent three emails so far. It seems the manual is not clear enough. Escalating to support team."
+          - "Follow-up note: Technical team confirmed the customer's account is now set up correctly after a long back-and-forth email exchange. This seems to be a common issue with new users."
+      - name: "activity_date"
+        type: "faker.past_date"
+      - name: "activity_assigned_to_user_id"
+        type: "random_existing_id"
+        table: "users"
+        column: "user_id"
+      - name: "contact_email"
+        type: "random_existing_id"
+        table: "contacts"
+        column: "contact_email"

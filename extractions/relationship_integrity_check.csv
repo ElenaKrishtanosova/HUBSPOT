@@ -1,4 +1,6 @@
 issue_type,count
-orphaned_contacts,0
-orphaned_deals,0
+orphaned_contacts,42
+orphaned_deals,8
 orphaned_tickets,0
+orphaned_notes,0
+orphaned_emails,0

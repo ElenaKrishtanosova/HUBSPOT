@@ -125,14 +125,14 @@ CALL_DIRECTIONS = ["Inbound", "Outbound"]
 EMAIL_DIRECTIONS = ["Incoming", "Outgoing"]
 ISSUES_OF_INTEREST = ["Crumb tray", "Overheating", "Wi‑Fi setup", "Shipping delay", "Thermostat", "Packaging", "Noise", "Invoice"]
 
-TOTAL_CONTACTS = 10
-TOTAL_COMPANIES = 6
-TOTAL_DEALS = 10
-TOTAL_TICKETS = 15
-TOTAL_TASKS = 5
-TOTAL_CALLS = 5
-TOTAL_EMAILS = 5
-TOTAL_NOTES = 8
+TOTAL_CONTACTS = 100
+TOTAL_COMPANIES = 25
+TOTAL_DEALS = 50
+TOTAL_TICKETS = 75
+TOTAL_TASKS = 50
+TOTAL_CALLS = 10
+TOTAL_EMAILS = 15
+TOTAL_NOTES = 100
 TOTAL_PRODUCTS = 5
 
 # --- LLM Integration ---

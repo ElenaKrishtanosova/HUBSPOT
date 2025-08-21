@@ -1,8 +1,27 @@
-company_domain,company_name,industry,number_of_employees,total_contacts,total_deals,total_sales_amount,total_tickets,total_notes,total_emails,total_tasks
-oliver.com,Suarez-Anderson,Hospitality,302,20,14,55776926.40,13,6,0,1
-garcia.com,"Thomas, Thomas and Williams",E-commerce,81,18,9,7723054.08,16,2,0,2
-adams.com,Garcia Group,Hospitality,746,17,12,34001383.80,20,3,0,0
-strong.com,"Sosa, Campbell and Thornton",Wholesale,552,15,9,7325841.60,11,2,0,2
-nichols-rivera.com,"Barr, Brooks and Myers",Retail,137,15,7,9424273.50,15,2,0,1
-sanchez.com,Baker Group,E-commerce,261,15,5,2344323.60,12,1,1,0
-TOTALS,,,2079,100,56,116595802.98,87,16,1,6
+company_domain,company_name,industry,total_contacts,total_deals,total_tickets,total_notes,total_emails,total_tasks,total_calls
+forbes.com,"Green, Mathews and Morales",Retail,7,0,11,42,2,0,1
+king.org,Holt and Sons,Distribution,6,8,3,40,3,8,2
+crosby.com,"Johnson, Berry and Reid",Retail,6,6,5,39,1,7,1
+delgado-young.biz,"Jones, Aguilar and Harris",Manufacturing,6,6,10,31,0,6,0
+bishop-smith.com,"Paul, Smith and Garrison",Wholesale,6,5,12,42,1,7,2
+crawford.com,"Brooks, Romero and Cooper",Retail,6,4,11,35,1,3,0
+bautista.biz,Tran Ltd,Retail,6,2,10,35,3,1,2
+thompson-beck.info,"Johnson, Young and Bishop",Retail,5,7,13,37,2,11,0
+gibson.net,Alexander PLC,Manufacturing,5,3,7,29,4,3,0
+li.org,Scott Inc,Retail,4,7,5,26,0,6,0
+calderon.com,Sanchez Inc,Wholesale,4,6,6,18,4,15,1
+duffy.com,"Hernandez, Scott and Herrera",Manufacturing,4,5,7,36,1,8,1
+graves.com,Wilson and Sons,Wholesale,4,4,9,44,3,3,0
+morrison.com,Moreno and Sons,Manufacturing,4,3,8,27,0,1,0
+coleman-johnson.org,Houston-Browning,Manufacturing,4,2,8,21,0,1,1
+jackson-kim.com,"Kelley, Jordan and Cardenas",Distribution,3,6,12,29,0,5,1
+craig.com,Cruz PLC,Manufacturing,3,6,10,36,1,5,0
+steele.biz,White-Wilson,Manufacturing,3,3,17,37,1,4,0
+whitehead-curry.biz,"Murphy, Lozano and Morrison",Wholesale,2,5,7,24,1,7,0
+phillips.biz,"Cook, Thomas and Burns",Wholesale,2,5,5,19,1,6,1
+smith.biz,"Guerra, Mann and Knox",Wholesale,2,5,12,44,1,6,0
+campbell.biz,Simpson-Thomas,Retail,2,4,7,24,1,4,0
+li.com,"Ramos, Hayden and Montgomery",Retail,2,4,1,9,0,3,1
+osborne.com,Johnson Group,Wholesale,2,4,11,28,0,7,0
+gonzalez.com,"Watkins, Armstrong and Robertson",Retail,2,2,8,14,1,0,1
+TOTALS,,,100,112,215,766,32,127,15
