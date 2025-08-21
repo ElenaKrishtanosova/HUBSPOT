@@ -1,30 +1,29 @@
-HubSpot CRM Schema - Compact Version
+HubSpot CRM Schema - Simplified Compact Version
 
-companies: company_id(PK), name, company_domain(UK), phone, city, industry, number_of_employees
-contacts: contact_id(PK), first_name, last_name, contact_email(UK), mobile_phone, company_domain(FK)
-deals: deal_id(PK), deal_name, deal_stage, pipeline, amount, close_date, contact_email(FK), company_domain(FK), product_of_interest, point_of_contact, description
-tickets: ticket_id(PK), ticket_name, pipeline, ticket_status, priority, source, ticket_owner, activity_date, contact_email(FK), company_domain(FK), issue_of_interest, issued_before, description
-products: product_id(PK), name(UK), description, price, cost_of_goods_sold
-users: user_id(PK), email(UK), full_name
-tasks: task_id(PK), due_at, title, notes, priority, status, task_type, queue, assigned_to_user_id(FK), deal_id(FK)
-calls: call_id(PK), notes, direction, status, title, activity_at, assigned_to_user_id(FK), duration_ms, outcome, source, from_number, to_number, recording_url, transcript_available, call_meeting_type
-emails: email_id(PK), contact_email(FK), subject, send_status, body, direction
-notes: note_id(PK), body, activity_date, activity_assigned_to_user_id(FK), company_domain(FK), ticket_id(FK), deal_id(FK), contact_email(FK)
-deal_line_items: line_item_id(PK), deal_id(FK), product_id(FK), name, quantity, unit_price
+companies: company_domain(PK), name, industry
+contacts: contact_email(PK), first_name, last_name, company_domain(FK)
+deals: deal_id(PK, BIGSERIAL), deal_name, deal_stage, description, contact_email(FK), company_domain(FK), activity_date
+tickets: ticket_id(PK, BIGSERIAL), ticket_name, priority, issue_of_interest, description, contact_email(FK), company_domain(FK), ticket_owner(FK), activity_date
+products: product_id(PK, BIGSERIAL), name(UK), description, price
+users: user_id(PK, BIGSERIAL), email(UK), full_name
+tasks: task_id(PK, BIGSERIAL), title, notes, assigned_to_user_id(FK), deal_id(FK)
+calls: call_id(PK, BIGSERIAL), notes, direction, assigned_to_user_id(FK), contact_email(FK), activity_at
+emails: email_id(PK, BIGSERIAL), body, subject, contact_email(FK), direction
+notes: note_id(PK, BIGSERIAL), body, activity_assigned_to_user_id(FK), contact_email(FK), deal_id(FK), ticket_id(FK), activity_date
+deal_line_items: deal_id(FK), product_id(FK), quantity, unit_price
 
 Associations:
-company_contact: company_domain(FK), contact_email(FK), label
-deal_company: deal_id(FK), company_domain(FK), label
-contact_contact: contact_email(FK), associated_contact_email(FK), label
-company_company: company_domain(FK), associated_company_domain(FK), label
-call_contacts: call_id(FK), contact_email(FK)
+company_contact: company_domain(FK), contact_email(FK)
+deal_company: deal_id(FK), company_domain(FK)
 
 Constraints:
-industry IN ('Retail', 'Hospitality', 'E-commerce', 'Wholesale', 'Manufacturing', 'Distribution')
+industry IN ('Retail', 'Wholesale', 'Manufacturing', 'Distribution')
 deal_stage IN ('Appointment Scheduled', 'Qualified to Buy', 'Presentation Scheduled', 'Closed Won', 'Closed Lost')
-product_of_interest IN ('2-slice toaster', '4-slice toaster', 'smart toaster', 'crumb tray kit', 'display stand')
-ticket_status IN ('New', 'Open', 'Waiting on contact', 'Waiting on Us', 'Closed')
 priority IN ('Low', 'Medium', 'High')
-source IN ('Email', 'Phone', 'Web form')
 issue_of_interest IN ('Crumb tray', 'Overheating', 'Wi‑Fi setup', 'Shipping delay', 'Thermostat', 'Packaging', 'Noise', 'Invoice')
-issued_before IN ('Yes', 'No')
+
+Key Features:
+- All ID fields use BIGSERIAL for auto-increment
+- Simplified structure without vector embeddings
+- Essential fields only for business insights
+- Support for incremental data insertion

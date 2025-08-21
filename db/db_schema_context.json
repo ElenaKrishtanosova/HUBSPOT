@@ -1,92 +1,61 @@
 {
   "database_name": "HubSpot CRM",
-  "schema_version": "2.0",
-  "description": "Updated schema with new field names and structure for better data organization",
+  "schema_version": "3.0",
+  "description": "Simplified schema optimized for business insights generation and incremental data insertion",
   "tables": {
     "companies": {
       "description": "Company information and details",
       "columns": {
-        "company_id": {"type": "BIGSERIAL", "constraint": "PRIMARY KEY"},
+        "company_domain": {"type": "TEXT", "constraint": "PRIMARY KEY"},
         "name": {"type": "TEXT", "constraint": "NOT NULL"},
-        "company_domain": {"type": "TEXT", "constraint": "UNIQUE, FK for associations"},
-        "phone": {"type": "TEXT", "format": "+[countrycode][digits]"},
-        "city": {"type": "TEXT"},
         "industry": {
           "type": "TEXT", 
-          "constraint": "CHECK (industry IN ('Retail', 'Hospitality', 'E-commerce', 'Wholesale', 'Manufacturing', 'Distribution'))"
-        },
-        "number_of_employees": {"type": "INTEGER"},
-        "name_embedding": {"type": "VECTOR(768)", "purpose": "semantic search"}
+          "constraint": "CHECK (industry IN ('Retail', 'Wholesale', 'Manufacturing', 'Distribution'))"
+        }
       }
     },
     "contacts": {
       "description": "Contact person information",
       "columns": {
-        "contact_id": {"type": "BIGSERIAL", "constraint": "PRIMARY KEY"},
+        "contact_email": {"type": "TEXT", "constraint": "PRIMARY KEY"},
         "first_name": {"type": "TEXT"},
         "last_name": {"type": "TEXT"},
-        "contact_email": {"type": "TEXT", "constraint": "UNIQUE, PK/association key"},
-        "mobile_phone": {"type": "TEXT", "format": "+[countrycode][digits]"},
-        "company_domain": {"type": "TEXT", "constraint": "FK → companies.company_domain"},
-        "name_embedding": {"type": "VECTOR(768)", "purpose": "fuzzy person lookup"}
-        }
-      },
+        "company_domain": {"type": "TEXT", "constraint": "FK → companies.company_domain"}
+      }
+    },
     "deals": {
       "description": "Sales deals and opportunities",
       "columns": {
-        "deal_id": {"type": "TEXT", "constraint": "PRIMARY KEY"},
+        "deal_id": {"type": "BIGSERIAL", "constraint": "PRIMARY KEY"},
         "deal_name": {"type": "TEXT", "constraint": "NOT NULL"},
         "deal_stage": {
           "type": "TEXT", 
           "constraint": "CHECK (deal_stage IN ('Appointment Scheduled', 'Qualified to Buy', 'Presentation Scheduled', 'Closed Won', 'Closed Lost'))"
         },
-        "pipeline": {"type": "TEXT", "example": "Sales Pipeline"},
-        "amount": {"type": "NUMERIC(18,2)"},
-        "close_date": {"type": "TEXT", "format": "dd/mm/yyyy hh:mm"},
+        "description": {"type": "TEXT"},
         "contact_email": {"type": "TEXT", "constraint": "FK → contacts.contact_email"},
         "company_domain": {"type": "TEXT", "constraint": "FK → companies.company_domain"},
-        "product_of_interest": {
-          "type": "TEXT", 
-          "constraint": "CHECK (product_of_interest IN ('2-slice toaster', '4-slice toaster', 'smart toaster', 'crumb tray kit', 'display stand'))"
-        },
-        "point_of_contact": {"type": "TEXT"},
-        "description": {"type": "TEXT", "purpose": "deal notes or associate emails"},
-        "name_embedding": {"type": "VECTOR(768)", "purpose": "semantic search"}
-        }
-      },
+        "activity_date": {"type": "TEXT"}
+      }
+    },
     "tickets": {
       "description": "Support tickets and issues",
       "columns": {
-        "ticket_id": {"type": "TEXT", "constraint": "PRIMARY KEY"},
+        "ticket_id": {"type": "BIGSERIAL", "constraint": "PRIMARY KEY"},
         "ticket_name": {"type": "TEXT", "constraint": "NOT NULL"},
-        "pipeline": {"type": "TEXT", "default": "Support Pipeline"},
-        "ticket_status": {
-          "type": "TEXT", 
-          "constraint": "CHECK (ticket_status IN ('New', 'Open', 'Waiting on contact', 'Waiting on Us', 'Closed'))"
-      },
         "priority": {
           "type": "TEXT", 
           "constraint": "CHECK (priority IN ('Low', 'Medium', 'High'))"
         },
-        "source": {
-          "type": "TEXT", 
-          "constraint": "CHECK (source IN ('Email', 'Phone', 'Web form'))"
-        },
-        "ticket_owner": {"type": "TEXT", "description": "email in the domain of the company that owns the system"},
-        "activity_date": {"type": "TEXT", "format": "dd/mm/yyyy hh:mm"},
-        "contact_email": {"type": "TEXT", "constraint": "FK → contacts.contact_email"},
-        "company_domain": {"type": "TEXT", "constraint": "FK → companies.company_domain"},
         "issue_of_interest": {
           "type": "TEXT", 
           "constraint": "CHECK (issue_of_interest IN ('Crumb tray', 'Overheating', 'Wi‑Fi setup', 'Shipping delay', 'Thermostat', 'Packaging', 'Noise', 'Invoice'))"
         },
-        "issued_before": {
-          "type": "TEXT", 
-          "constraint": "CHECK (issued_before IN ('Yes', 'No'))"
-        },
-        "description": {"type": "TEXT", "purpose": "ticket notes and/or associated emails"},
-        "name_embedding": {"type": "VECTOR(768)", "purpose": "semantic search"},
-        "issue_embedding": {"type": "VECTOR(768)", "purpose": "semantic search"}
+        "description": {"type": "TEXT"},
+        "contact_email": {"type": "TEXT", "constraint": "FK → contacts.contact_email"},
+        "company_domain": {"type": "TEXT", "constraint": "FK → companies.company_domain"},
+        "ticket_owner": {"type": "TEXT", "constraint": "FK → users.email"},
+        "activity_date": {"type": "TEXT"}
       }
     },
     "products": {
@@ -95,34 +64,25 @@
         "product_id": {"type": "BIGSERIAL", "constraint": "PRIMARY KEY"},
         "name": {"type": "TEXT", "constraint": "NOT NULL UNIQUE"},
         "description": {"type": "TEXT"},
-        "price": {"type": "NUMERIC(18,2)"},
-        "cost_of_goods_sold": {"type": "NUMERIC(18,2)"},
-        "description_embedding": {"type": "VECTOR(768)", "purpose": "semantic search"}
+        "price": {"type": "NUMERIC(18,2)"}
       }
-        },
+    },
     "users": {
       "description": "System users and owners",
       "columns": {
         "user_id": {"type": "BIGSERIAL", "constraint": "PRIMARY KEY"},
         "email": {"type": "TEXT", "constraint": "NOT NULL UNIQUE"},
         "full_name": {"type": "TEXT"}
-        }
-      },
+      }
+    },
     "tasks": {
       "description": "Task management and assignments",
       "columns": {
         "task_id": {"type": "BIGSERIAL", "constraint": "PRIMARY KEY"},
-        "due_at": {"type": "TIMESTAMPTZ"},
         "title": {"type": "TEXT", "constraint": "NOT NULL"},
         "notes": {"type": "TEXT"},
-        "priority": {"type": "TEXT"},
-        "status": {"type": "TEXT"},
-        "task_type": {"type": "TEXT"},
-        "queue": {"type": "TEXT"},
         "assigned_to_user_id": {"type": "BIGINT", "constraint": "FK → users.user_id"},
-        "deal_id": {"type": "TEXT", "constraint": "FK → deals.deal_id"},
-        "title_embedding": {"type": "VECTOR(768)", "purpose": "semantic search"},
-        "notes_embedding": {"type": "VECTOR(768)", "purpose": "semantic search"}
+        "deal_id": {"type": "BIGINT", "constraint": "FK → deals.deal_id"}
       }
     },
     "calls": {
@@ -131,32 +91,19 @@
         "call_id": {"type": "BIGSERIAL", "constraint": "PRIMARY KEY"},
         "notes": {"type": "TEXT"},
         "direction": {"type": "TEXT", "values": ["Inbound", "Outbound"]},
-        "status": {"type": "TEXT", "values": ["Completed", "Busy", "etc"]},
-        "title": {"type": "TEXT"},
-        "activity_at": {"type": "TIMESTAMPTZ"},
         "assigned_to_user_id": {"type": "BIGINT", "constraint": "FK → users.user_id"},
-        "duration_ms": {"type": "BIGINT"},
-        "outcome": {"type": "TEXT", "values": ["Connected", "Left voicemail", "etc"]},
-        "source": {"type": "TEXT", "values": ["VoIP", "Zoom", "etc"]},
-        "from_number": {"type": "TEXT"},
-        "to_number": {"type": "TEXT"},
-        "recording_url": {"type": "TEXT"},
-        "transcript_available": {"type": "BOOLEAN"},
-        "call_meeting_type": {"type": "TEXT"},
-        "notes_embedding": {"type": "VECTOR(768)", "purpose": "conversational context search"}
+        "contact_email": {"type": "TEXT", "constraint": "FK → contacts.contact_email"},
+        "activity_at": {"type": "TIMESTAMPTZ"}
       }
     },
     "emails": {
       "description": "Email communications",
       "columns": {
         "email_id": {"type": "BIGSERIAL", "constraint": "PRIMARY KEY"},
-        "contact_email": {"type": "TEXT", "constraint": "FK → contacts.contact_email"},
-        "subject": {"type": "TEXT"},
-        "send_status": {"type": "TEXT", "values": ["Sent", "Scheduled", "etc"]},
         "body": {"type": "TEXT"},
-        "direction": {"type": "TEXT", "values": ["Incoming", "Outgoing"]},
-        "subject_embedding": {"type": "VECTOR(768)", "purpose": "semantic search"},
-        "body_embedding": {"type": "VECTOR(768)", "purpose": "semantic search"}
+        "subject": {"type": "TEXT"},
+        "contact_email": {"type": "TEXT", "constraint": "FK → contacts.contact_email"},
+        "direction": {"type": "TEXT", "values": ["Incoming", "Outgoing"]}
       }
     },
     "notes": {
@@ -164,109 +111,71 @@
       "columns": {
         "note_id": {"type": "BIGSERIAL", "constraint": "PRIMARY KEY"},
         "body": {"type": "TEXT", "constraint": "NOT NULL"},
-        "activity_date": {"type": "DATE"},
         "activity_assigned_to_user_id": {"type": "BIGINT", "constraint": "FK → users.user_id"},
-        "company_domain": {"type": "TEXT", "constraint": "FK → companies.company_domain"},
-        "ticket_id": {"type": "TEXT", "constraint": "FK → tickets.ticket_id"},
-        "deal_id": {"type": "TEXT", "constraint": "FK → deals.deal_id"},
         "contact_email": {"type": "TEXT", "constraint": "FK → contacts.contact_email"},
-        "body_embedding": {"type": "VECTOR(768)", "purpose": "long-form context search"}
+        "deal_id": {"type": "BIGINT", "constraint": "FK → deals.deal_id"},
+        "ticket_id": {"type": "BIGINT", "constraint": "FK → tickets.ticket_id"},
+        "activity_date": {"type": "DATE"}
       }
-        },
+    },
     "deal_line_items": {
       "description": "Line items within deals",
       "columns": {
-        "line_item_id": {"type": "BIGSERIAL", "constraint": "PRIMARY KEY"},
-        "deal_id": {"type": "TEXT", "constraint": "FK → deals.deal_id ON DELETE CASCADE"},
-        "product_id": {"type": "BIGINT", "constraint": "FK → products(product_id)"},
-        "name": {"type": "TEXT"},
+        "deal_id": {"type": "BIGINT", "constraint": "FK → deals.deal_id ON DELETE CASCADE"},
+        "product_id": {"type": "BIGINT", "constraint": "FK → products.product_id"},
         "quantity": {"type": "INTEGER", "constraint": "NOT NULL DEFAULT 1"},
         "unit_price": {"type": "NUMERIC(18,2)"}
       }
-        }
-      },
+    }
+  },
   "associations": {
     "company_contact_associations": {
       "description": "Many-to-many company-contact relationships",
       "columns": {
         "company_domain": {"type": "TEXT", "constraint": "FK → companies.company_domain ON DELETE CASCADE"},
-        "contact_email": {"type": "TEXT", "constraint": "FK → contacts.contact_email ON DELETE CASCADE"},
-        "label": {"type": "TEXT", "default": "''"}
+        "contact_email": {"type": "TEXT", "constraint": "FK → contacts.contact_email ON DELETE CASCADE"}
       },
-      "primary_key": ["company_domain", "contact_email", "label"]
+      "primary_key": ["company_domain", "contact_email"]
     },
     "deal_company_associations": {
       "description": "Many-to-many deal-company relationships",
       "columns": {
-        "deal_id": {"type": "TEXT", "constraint": "FK → deals.deal_id ON DELETE CASCADE"},
-        "company_domain": {"type": "TEXT", "constraint": "FK → companies.company_domain ON DELETE CASCADE"},
-        "label": {"type": "TEXT", "default": "''"}
-        },
-      "primary_key": ["deal_id", "company_domain", "label"]
-        },
-    "contact_contact_associations": {
-      "description": "Many-to-many contact-contact relationships",
-      "columns": {
-        "contact_email": {"type": "TEXT", "constraint": "FK → contacts.contact_email ON DELETE CASCADE"},
-        "associated_contact_email": {"type": "TEXT", "constraint": "FK → contacts.contact_email ON DELETE CASCADE"},
-        "label": {"type": "TEXT", "default": "''"}
-    },
-      "primary_key": ["contact_email", "associated_contact_email", "label"]
-    },
-    "company_company_associations": {
-      "description": "Many-to-many company-company relationships",
-      "columns": {
-        "company_domain": {"type": "TEXT", "constraint": "FK → companies.company_domain ON DELETE CASCADE"},
-        "associated_company_domain": {"type": "TEXT", "constraint": "FK → companies.company_domain ON DELETE CASCADE"},
-        "label": {"type": "TEXT", "default": "''"}
+        "deal_id": {"type": "BIGINT", "constraint": "FK → deals.deal_id ON DELETE CASCADE"},
+        "company_domain": {"type": "TEXT", "constraint": "FK → companies.company_domain ON DELETE CASCADE"}
       },
-      "primary_key": ["company_domain", "associated_company_domain", "label"]
-    },
-    "call_contacts": {
-      "description": "Many-to-many call-contact relationships",
-      "columns": {
-        "call_id": {"type": "BIGINT", "constraint": "FK → calls.call_id ON DELETE CASCADE"},
-        "contact_email": {"type": "TEXT", "constraint": "FK → contacts.contact_email"}
-      },
-      "primary_key": ["call_id", "contact_email"]
+      "primary_key": ["deal_id", "company_domain"]
     }
   },
   "key_changes": {
-    "field_renames": {
-      "contacts.email": "contacts.contact_email",
-      "contacts.phone": "contacts.mobile_phone",
-      "companies.domain": "companies.company_domain",
-      "companies.phone_number": "companies.phone",
-      "deals.name": "deals.deal_name",
-      "deals.stage": "deals.deal_stage",
-      "tickets.name": "tickets.ticket_name",
-      "tickets.status": "tickets.ticket_status",
-      "tickets.owner_user_id": "tickets.ticket_owner"
+    "schema_simplification": {
+      "removed_fields": ["Vector embeddings", "Complex constraints", "Unnecessary fields"],
+      "simplified_associations": "Removed labels and complex relationships",
+      "focus": "Essential fields for business insights generation"
     },
-    "new_fields": {
-      "companies.industry": "Industry classification with constraints",
-      "companies.number_of_employees": "Employee count",
-      "deals.description": "Deal notes and associated emails",
-      "tickets.description": "Ticket notes and associated emails",
-      "tickets.issued_before": "Whether customer had previous tickets"
+    "id_field_updates": {
+      "all_primary_keys": "BIGSERIAL for auto-increment functionality",
+      "foreign_keys": "Updated to reference BIGSERIAL fields",
+      "benefits": "Enables incremental data insertion without ID conflicts"
     },
-    "type_changes": {
-      "deals.deal_id": "BIGSERIAL → TEXT",
-      "tickets.ticket_id": "BIGSERIAL → TEXT",
-      "deals.close_date": "DATE → TEXT (dd/mm/yyyy hh:mm format)",
-      "tickets.activity_date": "New TEXT field (dd/mm/yyyy hh:mm format)"
+    "field_consolidation": {
+      "companies": "Simplified to essential fields (domain, name, industry)",
+      "contacts": "Streamlined structure with email as primary key",
+      "deals_tickets": "Focus on core business fields",
+      "activities": "Essential tracking fields only"
     }
-    },
+  },
   "constraints": {
     "enumerated_values": {
-      "industry": ["Retail", "Hospitality", "E-commerce", "Wholesale", "Manufacturing", "Distribution"],
+      "industry": ["Retail", "Wholesale", "Manufacturing", "Distribution"],
       "deal_stage": ["Appointment Scheduled", "Qualified to Buy", "Presentation Scheduled", "Closed Won", "Closed Lost"],
-      "product_of_interest": ["2-slice toaster", "4-slice toaster", "smart toaster", "crumb tray kit", "display stand"],
-      "ticket_status": ["New", "Open", "Waiting on contact", "Waiting on Us", "Closed"],
       "priority": ["Low", "Medium", "High"],
-      "source": ["Email", "Phone", "Web form"],
-      "issue_of_interest": ["Crumb tray", "Overheating", "Wi‑Fi setup", "Shipping delay", "Thermostat", "Packaging", "Noise", "Invoice"],
-      "issued_before": ["Yes", "No"]
+      "issue_of_interest": ["Crumb tray", "Overheating", "Wi‑Fi setup", "Shipping delay", "Thermostat", "Packaging", "Noise", "Invoice"]
     }
+  },
+  "use_case_optimization": {
+    "business_insights": "Schema designed for pattern detection",
+    "incremental_data": "Support for adding historical data",
+    "performance": "Simplified structure for faster queries",
+    "maintenance": "Easier to manage and update"
   }
 }

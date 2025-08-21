@@ -1,139 +1,101 @@
-HubSpot CRM Database Schema - Simple Overview
+HubSpot CRM Database Schema - Simplified Version
 
 Core Tables:
 
 1. companies
-   - company_id (PK)
+   - company_domain (PK, unique)
    - name
-   - company_domain (unique, FK for associations)
-   - phone
-   - city
-   - industry (Retail, Hospitality, E-commerce, Wholesale, Manufacturing, Distribution)
-   - number_of_employees
+   - industry (Retail, Wholesale, Manufacturing, Distribution)
 
 2. contacts
-   - contact_id (PK)
+   - contact_email (PK, unique)
    - first_name
    - last_name
-   - contact_email (unique, FK for associations)
-   - mobile_phone
    - company_domain (FK → companies.company_domain)
 
 3. deals
-   - deal_id (PK, text)
+   - deal_id (PK, BIGSERIAL)
    - deal_name
    - deal_stage (Appointment Scheduled, Qualified to Buy, Presentation Scheduled, Closed Won, Closed Lost)
-   - pipeline
-   - amount
-   - close_date (dd/mm/yyyy hh:mm)
+   - description
    - contact_email (FK → contacts.contact_email)
    - company_domain (FK → companies.company_domain)
-   - product_of_interest (2-slice toaster, 4-slice toaster, smart toaster, crumb tray kit, display stand)
-   - point_of_contact
-   - description
+   - activity_date (TEXT)
 
 4. tickets
-   - ticket_id (PK, text)
+   - ticket_id (PK, BIGSERIAL)
    - ticket_name
-   - pipeline (default: Support Pipeline)
-   - ticket_status (New, Open, Waiting on contact, Waiting on Us, Closed)
    - priority (Low, Medium, High)
-   - source (Email, Phone, Web form)
-   - ticket_owner
-   - activity_date (dd/mm/yyyy hh:mm)
+   - issue_of_interest (Crumb tray, Overheating, Wi‑Fi setup, Shipping delay, Thermostat, Packaging, Noise, Invoice)
+   - description
    - contact_email (FK → contacts.contact_email)
    - company_domain (FK → companies.company_domain)
-   - issue_of_interest (Crumb tray, Overheating, Wi‑Fi setup, Shipping delay, Thermostat, Packaging, Noise, Invoice)
-   - issued_before (Yes/No)
-   - description
+   - ticket_owner (FK → users.email)
+   - activity_date (TEXT)
 
 5. products
-   - product_id (PK)
+   - product_id (PK, BIGSERIAL)
    - name (unique)
    - description
    - price
-   - cost_of_goods_sold
 
 6. users
-   - user_id (PK)
+   - user_id (PK, BIGSERIAL)
    - email (unique)
    - full_name
 
 Activity Tables:
 
 7. tasks
-   - task_id (PK)
+   - task_id (PK, BIGSERIAL)
    - title
    - notes
-   - priority
-   - status
-   - due_at
    - assigned_to_user_id (FK → users.user_id)
    - deal_id (FK → deals.deal_id)
 
 8. calls
-   - call_id (PK)
+   - call_id (PK, BIGSERIAL)
    - notes
    - direction
-   - status
-   - title
-   - activity_at
    - assigned_to_user_id (FK → users.user_id)
-   - duration_ms
-   - outcome
-   - source
-   - from_number
-   - to_number
+   - contact_email (FK → contacts.contact_email)
+   - activity_at (TIMESTAMPTZ)
 
 9. emails
-   - email_id (PK)
-   - contact_email (FK → contacts.contact_email)
-   - subject
+   - email_id (PK, BIGSERIAL)
    - body
+   - subject
+   - contact_email (FK → contacts.contact_email)
    - direction
-   - send_status
 
 10. notes
-    - note_id (PK)
+    - note_id (PK, BIGSERIAL)
     - body
-    - activity_date
     - activity_assigned_to_user_id (FK → users.user_id)
-    - company_domain (FK → companies.company_domain)
-    - ticket_id (FK → tickets.ticket_id)
-    - deal_id (FK → deals.deal_id)
     - contact_email (FK → contacts.contact_email)
+    - deal_id (FK → deals.deal_id)
+    - ticket_id (FK → tickets.ticket_id)
+    - activity_date (DATE)
 
 Association Tables:
 
-11. company_contact_associations
+11. deal_line_items
+    - deal_id (FK → deals.deal_id)
+    - product_id (FK → products.product_id)
+    - quantity
+    - unit_price
+
+12. company_contact_associations
     - company_domain (FK → companies.company_domain)
     - contact_email (FK → contacts.contact_email)
-    - label
 
-12. deal_company_associations
+13. deal_company_associations
     - deal_id (FK → deals.deal_id)
     - company_domain (FK → companies.company_domain)
-    - label
-
-13. contact_contact_associations
-    - contact_email (FK → contacts.contact_email)
-    - associated_contact_email (FK → contacts.contact_email)
-    - label
-
-14. company_company_associations
-    - company_domain (FK → companies.company_domain)
-    - associated_company_domain (FK → companies.company_domain)
-    - label
-
-15. call_contacts
-    - call_id (FK → calls.call_id)
-    - contact_email (FK → contacts.contact_email)
 
 Key Changes from Previous Schema:
-- contact_id → contact_email (text, unique)
-- company_id → company_domain (text, unique)
-- deal_id → text (was BIGSERIAL)
-- ticket_id → text (was BIGSERIAL)
-- Added new fields: industry, number_of_employees, deal_stage, ticket_status, etc.
-- Updated foreign key references to use text fields
-- Added CHECK constraints for enumerated values
+- All ID fields now use BIGSERIAL for proper auto-increment functionality
+- Simplified structure without vector embeddings
+- Removed complex fields and constraints
+- Streamlined associations without labels
+- Focus on essential fields for business insights generation
