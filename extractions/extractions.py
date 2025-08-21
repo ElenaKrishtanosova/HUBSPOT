@@ -2,6 +2,7 @@
 """
 Script to extract all database tables to CSV files
 Updated for new schema with contact_email, company_domain, etc.
+Now includes HubSpot-compatible date format conversion
 """
 
 import os
@@ -24,7 +25,7 @@ def load_config():
         return None
     except yaml.YAMLError as e:
         print(f"❌ Error parsing configuration file: {e}")
-        return None
+        sys.exit(1)
 
 # Load configuration
 CONFIG = load_config()
@@ -46,6 +47,40 @@ DB_CONFIG = {
     'password': os.getenv('DB_PASSWORD', CONFIG['database']['password']),
     'database': os.getenv('DB_NAME', CONFIG['database']['name'])
 }
+
+def convert_to_hubspot_format(value, table_name, column_name):
+    """
+    Convert database values to HubSpot-compatible CSV format
+    Handles TIMESTAMPTZ dates and other data types
+    """
+    if value is None:
+        return ''
+    
+    # Handle datetime objects (TIMESTAMPTZ)
+    if isinstance(value, datetime):
+        if table_name == "deals" and column_name == "activity_date":
+            return value.strftime("%-m/%-d/%Y")  # 3/16/2018
+        elif table_name == "tasks" and column_name == "created_at":
+            return value.strftime("%-m/%-d/%y %H:%M")  # 3/16/18 14:30
+        elif table_name == "tickets" and column_name == "activity_date":
+            return value.strftime("%-m/%-d/%Y %H:%M")  # 3/16/2018 14:30
+        elif table_name == "notes" and column_name == "activity_date":
+            return value.strftime("%-m/%-d/%Y")  # 3/16/2018
+        elif table_name == "calls" and column_name == "activity_at":
+            return value.strftime("%-m/%-d/%Y %H:%M")  # 3/16/2018 14:30
+        elif table_name == "emails" and column_name == "created_at":
+            return value.strftime("%-m/%-d/%Y %H:%M")  # 3/16/2018 14:30
+        else:
+            # Default format for other datetime fields
+            return value.strftime("%-m/%-d/%Y %H:%M")
+    
+    # Handle date objects
+    elif isinstance(value, date):
+        return value.strftime("%-m/%-d/%Y")
+    
+    # Handle other types
+    else:
+        return str(value)
 
 def get_table_names():
     """Get all table names from the database"""
@@ -101,7 +136,7 @@ def get_table_data(table_name):
         return [], []
 
 def export_table_to_csv(table_name, output_dir):
-    """Export a single table to CSV"""
+    """Export a single table to CSV with HubSpot-compatible formatting"""
     try:
         columns, rows = get_table_data(table_name)
         
@@ -119,17 +154,13 @@ def export_table_to_csv(table_name, output_dir):
             # Write header
             writer.writerow(columns)
             
-            # Write data rows
+            # Write data rows with HubSpot formatting
             for row in rows:
-                # Convert any non-string values to strings
                 processed_row = []
-                for value in row:
-                    if value is None:
-                        processed_row.append('')
-                    elif isinstance(value, (datetime, date)):
-                        processed_row.append(str(value))
-                    else:
-                        processed_row.append(str(value))
+                for i, value in enumerate(row):
+                    column_name = columns[i]
+                    formatted_value = convert_to_hubspot_format(value, table_name, column_name)
+                    processed_row.append(formatted_value)
                 writer.writerow(processed_row)
         
         logger.info(f"✅ Exported {table_name}: {len(rows)} rows to {output_file}")
@@ -140,15 +171,15 @@ def export_table_to_csv(table_name, output_dir):
         return False
 
 def create_sample_data_files():
-    """Create sample CSV files with the new schema structure"""
+    """Create sample CSV files with the new schema structure and HubSpot-compatible dates"""
     sample_dir = os.path.dirname(__file__)
     
     # Sample Contacts data
     contacts_data = [
-        ['first_name', 'last_name', 'contact_email', 'mobile_phone', 'company_domain'],
-        ['John', 'Smith', 'john.smith@example.com', '+1234567890', 'example.com'],
-        ['Jane', 'Doe', 'jane.doe@company.com', '+1987654321', 'company.com'],
-        ['Bob', 'Johnson', 'bob.johnson@business.org', '+1555123456', 'business.org']
+        ['first_name', 'last_name', 'contact_email', 'company_domain'],
+        ['John', 'Smith', 'john.smith@example.com', 'example.com'],
+        ['Jane', 'Doe', 'jane.doe@company.com', 'company.com'],
+        ['Bob', 'Johnson', 'bob.johnson@business.org', 'business.org']
     ]
     
     contacts_file = os.path.join(sample_dir, 'contacts.csv')
@@ -158,10 +189,10 @@ def create_sample_data_files():
     
     # Sample Companies data
     companies_data = [
-        ['name', 'company_domain', 'phone', 'city', 'industry', 'number_of_employees'],
-        ['Example Corp', 'example.com', '+1234567890', 'New York', 'E-commerce', 100],
-        ['Company Inc', 'company.com', '+1987654321', 'Los Angeles', 'Retail', 50],
-        ['Business LLC', 'business.org', '+1555123456', 'Chicago', 'Manufacturing', 200]
+        ['company_domain', 'name', 'industry'],
+        ['example.com', 'Example Corp', 'Retail'],
+        ['company.com', 'Company Inc', 'Wholesale'],
+        ['business.org', 'Business LLC', 'Manufacturing']
     ]
     
     companies_file = os.path.join(sample_dir, 'companies.csv')
@@ -169,11 +200,11 @@ def create_sample_data_files():
         writer = csv.writer(csvfile)
         writer.writerows(companies_data)
     
-    # Sample Deals data
+    # Sample Deals data with HubSpot-compatible dates
     deals_data = [
-        ['deal_id', 'deal_name', 'deal_stage', 'pipeline', 'amount', 'close_date', 'contact_email', 'company_domain', 'product_of_interest', 'point_of_contact', 'description'],
-        ['DEAL001', 'Toaster Deal', 'Qualified to Buy', 'Sales Pipeline', 299.99, '15/12/2024 14:30', 'john.smith@example.com', 'example.com', 'smart toaster', 'John Smith', 'Smart toaster deal for Example Corp'],
-        ['DEAL002', 'Kitchen Equipment', 'Closed Won', 'Sales Pipeline', 599.99, '10/12/2024 10:00', 'jane.doe@company.com', 'company.com', '4-slice toaster', 'Jane Doe', '4-slice toaster deal for Company Inc']
+        ['deal_id', 'deal_name', 'deal_stage', 'description', 'contact_email', 'company_domain', 'activity_date'],
+        ['1', 'Toaster Deal', 'Qualified to Buy', 'Smart toaster deal for Example Corp', 'john.smith@example.com', 'example.com', '3/16/2018'],
+        ['2', 'Kitchen Equipment', 'Closed Won', '4-slice toaster deal for Company Inc', 'jane.doe@company.com', 'company.com', '3/10/2018']
     ]
     
     deals_file = os.path.join(sample_dir, 'deals.csv')
@@ -181,11 +212,11 @@ def create_sample_data_files():
         writer = csv.writer(csvfile)
         writer.writerows(deals_data)
     
-    # Sample Tickets data
+    # Sample Tickets data with HubSpot-compatible dates
     tickets_data = [
-        ['ticket_id', 'ticket_name', 'pipeline', 'ticket_status', 'priority', 'source', 'ticket_owner', 'activity_date', 'contact_email', 'company_domain', 'issue_of_interest', 'issued_before', 'description'],
-        ['TICKET001', 'Crumb Tray Issue', 'Support Pipeline', 'Open', 'Medium', 'Email', 'support@example.com', '12/12/2024 09:00', 'john.smith@example.com', 'example.com', 'Crumb tray', 'No', 'Customer reports crumb tray not fitting properly'],
-        ['TICKET002', 'Wi-Fi Setup Help', 'Support Pipeline', 'New', 'Low', 'Web form', 'support@company.com', '12/12/2024 11:30', 'jane.doe@company.com', 'company.com', 'Wi‑Fi setup', 'Yes', 'Customer needs help with Wi-Fi setup']
+        ['ticket_id', 'ticket_name', 'priority', 'issue_of_interest', 'description', 'contact_email', 'company_domain', 'ticket_owner', 'activity_date'],
+        ['1', 'Crumb Tray Issue', 'Medium', 'Crumb tray', 'Customer reports crumb tray not fitting properly', 'john.smith@example.com', 'example.com', 'support@example.com', '3/16/2018 09:00'],
+        ['2', 'Wi-Fi Setup Help', 'Low', 'Wi‑Fi setup', 'Customer needs help with Wi-Fi setup', 'jane.doe@company.com', 'company.com', 'support@company.com', '3/16/2018 11:30']
     ]
     
     tickets_file = os.path.join(sample_dir, 'tickets.csv')
@@ -193,11 +224,23 @@ def create_sample_data_files():
         writer = csv.writer(csvfile)
         writer.writerows(tickets_data)
     
-    logger.info("✅ Created sample data files with new schema structure")
+    # Sample Tasks data with HubSpot-compatible dates
+    tasks_data = [
+        ['task_id', 'title', 'notes', 'assigned_to_user_id', 'deal_id', 'created_at'],
+        ['1', 'Follow up on toaster deal', 'Call customer to discuss smart toaster features', '1', '1', '3/16/18 14:30'],
+        ['2', 'Send proposal', 'Prepare and send 4-slice toaster proposal', '2', '2', '3/15/18 10:00']
+    ]
+    
+    tasks_file = os.path.join(sample_dir, 'tasks.csv')
+    with open(tasks_file, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerows(tasks_data)
+    
+    logger.info("✅ Created sample data files with new schema structure and HubSpot-compatible dates")
 
 def main():
     """Main extraction function"""
-    logger.info("🚀 Starting database extraction...")
+    logger.info("🚀 Starting database extraction with HubSpot-compatible formatting...")
     
     # Create output directory
     output_dir = os.path.dirname(__file__)
@@ -225,6 +268,7 @@ def main():
     # Summary
     logger.info(f"🎉 Extraction complete!")
     logger.info(f"✅ Successfully exported: {successful_exports}/{total_exports} tables")
+    logger.info(f"📅 All dates converted to HubSpot-compatible format")
     
     if successful_exports < total_exports:
         logger.warning(f"⚠️ Failed exports: {total_exports - successful_exports} tables")
