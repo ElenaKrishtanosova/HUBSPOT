@@ -116,6 +116,7 @@ This document describes the simplified HubSpot CRM database schema optimized for
 | `notes` | TEXT | - | Task notes |
 | `assigned_to_user_id` | BIGINT | FK → users.user_id | Assigned user |
 | `deal_id` | BIGINT | FK → deals.deal_id | Associated deal |
+| `created_at` | TIMESTAMPTZ | DEFAULT NOW() | Task creation timestamp |
 
 ### 8. Calls
 **Purpose:** Call records and communications

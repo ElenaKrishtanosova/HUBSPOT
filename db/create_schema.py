@@ -220,7 +220,8 @@ def create_simplified_schema():
                 title TEXT NOT NULL,
                 notes TEXT,
                 assigned_to_user_id BIGINT REFERENCES users(user_id),
-                deal_id BIGINT REFERENCES deals(deal_id)
+                deal_id BIGINT REFERENCES deals(deal_id),
+                created_at TIMESTAMPTZ DEFAULT NOW()
             );
         """)
         logger.info("Created tasks table")

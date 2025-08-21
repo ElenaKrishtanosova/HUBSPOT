@@ -6,7 +6,7 @@ deals: deal_id(PK, BIGSERIAL), deal_name, deal_stage, description, contact_email
 tickets: ticket_id(PK, BIGSERIAL), ticket_name, priority, issue_of_interest, description, contact_email(FK), company_domain(FK), ticket_owner(FK), activity_date
 products: product_id(PK, BIGSERIAL), name(UK), description, price
 users: user_id(PK, BIGSERIAL), email(UK), full_name
-tasks: task_id(PK, BIGSERIAL), title, notes, assigned_to_user_id(FK), deal_id(FK)
+tasks: task_id(PK, BIGSERIAL), title, notes, assigned_to_user_id(FK), deal_id(FK), created_at
 calls: call_id(PK, BIGSERIAL), notes, direction, assigned_to_user_id(FK), contact_email(FK), activity_at
 emails: email_id(PK, BIGSERIAL), body, subject, contact_email(FK), direction, created_at
 notes: note_id(PK, BIGSERIAL), body, activity_assigned_to_user_id(FK), contact_email(FK), deal_id(FK), ticket_id(FK), activity_date
@@ -27,3 +27,4 @@ Key Features:
 - Simplified structure without vector embeddings
 - Essential fields only for business insights
 - Support for incremental data insertion
+- All activity tables have timestamp fields for time-based filtering

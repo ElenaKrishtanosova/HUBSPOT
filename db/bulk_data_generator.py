@@ -394,9 +394,9 @@ def generate_and_load_data():
             deal_id = random.choice(all_deal_ids) if all_deal_ids else None
             
             cur.execute(
-                """INSERT INTO tasks (title, notes, assigned_to_user_id, deal_id) VALUES (%s, %s, %s, %s);""",
+                """INSERT INTO tasks (title, notes, assigned_to_user_id, deal_id, created_at) VALUES (%s, %s, %s, %s, %s);""",
                 (generate_llm_content(PROMPTS['task']), generate_llm_content(PROMPTS['task']),
-                 assigned_user, deal_id)
+                 assigned_user, deal_id, fake.date_time_between(month_start_date, month_end_date))
             )
             all_task_ids.append(task_id)
         
