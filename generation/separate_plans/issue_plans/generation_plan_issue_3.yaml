@@ -100,3 +100,5 @@ data_to_generate:
         type: "random_existing_id"
         table: "deals"
         column: "deal_id"
+      - name: "created_at"
+        type: "faker.past_date"

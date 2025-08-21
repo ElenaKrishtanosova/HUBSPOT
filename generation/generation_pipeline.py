@@ -151,6 +151,12 @@ def generate_insight_data(yaml_plan_path, db_config = DB_CONFIG , start_date_str
                                 datetime.min.time().replace(hour=random.randint(9, 17), 
                                                           minute=random.randint(0, 59)))
                             record[prop_name] = random_time.strftime("%d/%m/%Y %H:%M")
+                        elif entity_name == "tasks" and prop_name == "created_at":
+                            # For tasks.created_at, use TIMESTAMPTZ format
+                            random_time = datetime.combine(random_date.date(), 
+                                datetime.min.time().replace(hour=random.randint(9, 17), 
+                                                          minute=random.randint(0, 59)))
+                            record[prop_name] = random_time
                         else:
                             record[prop_name] = random_date
                     elif prop_type == 'random_existing_id':
