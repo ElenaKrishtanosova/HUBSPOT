@@ -423,9 +423,9 @@ def generate_and_load_data():
             contact_email = random.choice(all_contact_emails) if all_contact_emails else None
             
             cur.execute(
-                """INSERT INTO emails (body, subject, contact_email, direction) VALUES (%s, %s, %s, %s);""",
+                """INSERT INTO emails (body, subject, contact_email, direction, created_at) VALUES (%s, %s, %s, %s, %s);""",
                 (generate_llm_content(PROMPTS['email']), fake.sentence(nb_words=6), 
-                 contact_email, random.choice(EMAIL_DIRECTIONS))
+                 contact_email, random.choice(EMAIL_DIRECTIONS), fake.date_time_between(month_start_date, month_end_date))
             )
             all_email_ids.append(email_id)
 

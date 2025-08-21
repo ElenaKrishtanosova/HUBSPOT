@@ -139,6 +139,7 @@ This document describes the simplified HubSpot CRM database schema optimized for
 | `subject` | TEXT | - | Email subject |
 | `contact_email` | TEXT | FK → contacts.contact_email | Associated contact |
 | `direction` | TEXT | - | Incoming/Outgoing |
+| `created_at` | TIMESTAMPTZ | - | Email creation timestamp |
 
 ### 10. Notes
 **Purpose:** General notes and documentation

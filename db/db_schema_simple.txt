@@ -67,6 +67,7 @@ Activity Tables:
    - subject
    - contact_email (FK → contacts.contact_email)
    - direction
+   - created_at (TIMESTAMPTZ)
 
 10. notes
     - note_id (PK, BIGSERIAL)

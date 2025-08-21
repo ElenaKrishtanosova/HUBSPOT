@@ -207,7 +207,8 @@ def create_simplified_schema():
                 body TEXT,
                 subject TEXT,
                 contact_email TEXT REFERENCES contacts(contact_email),
-                direction TEXT
+                direction TEXT,
+                created_at TIMESTAMPTZ
             );
         """)
         logger.info("Created emails table")

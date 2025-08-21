@@ -8,7 +8,7 @@ products: product_id(PK, BIGSERIAL), name(UK), description, price
 users: user_id(PK, BIGSERIAL), email(UK), full_name
 tasks: task_id(PK, BIGSERIAL), title, notes, assigned_to_user_id(FK), deal_id(FK)
 calls: call_id(PK, BIGSERIAL), notes, direction, assigned_to_user_id(FK), contact_email(FK), activity_at
-emails: email_id(PK, BIGSERIAL), body, subject, contact_email(FK), direction
+emails: email_id(PK, BIGSERIAL), body, subject, contact_email(FK), direction, created_at
 notes: note_id(PK, BIGSERIAL), body, activity_assigned_to_user_id(FK), contact_email(FK), deal_id(FK), ticket_id(FK), activity_date
 deal_line_items: deal_id(FK), product_id(FK), quantity, unit_price
 

@@ -78,6 +78,8 @@ data_to_generate:
       - name: "direction"
         type: "static"
         value: "Incoming"
+      - name: "created_at"
+        type: "faker.past_date"
 
   - entity: "calls"
     count: 3

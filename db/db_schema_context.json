@@ -103,7 +103,8 @@
         "body": {"type": "TEXT"},
         "subject": {"type": "TEXT"},
         "contact_email": {"type": "TEXT", "constraint": "FK → contacts.contact_email"},
-        "direction": {"type": "TEXT", "values": ["Incoming", "Outgoing"]}
+        "direction": {"type": "TEXT", "values": ["Incoming", "Outgoing"]},
+        "created_at": {"type": "TIMESTAMPTZ"}
       }
     },
     "notes": {
